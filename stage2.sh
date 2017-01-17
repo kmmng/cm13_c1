@@ -1,6 +1,7 @@
 #!/bin/bash
 # Stage 2 - prepare source for compile and patch it for c1
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BDIR=~/android/cm13stable
 if [ ! "$C1MODEL" ]; then
 C1MODEL=c1lgt
 fi
@@ -18,7 +19,7 @@ echo Configuring source for SHV-E210$C1VAR...
 echo Errors may appear in the first part of the configuration, please ignore them.
 sleep 5
 export PATH="$HOME/bin:$PATH"
-cd ~/android/system
+cd $BDIR
 source build/envsetup.sh
 rm -rf vendor/samsung
 # Init i9300 source. This will produce some errors but this is normal and we should continue.
@@ -215,6 +216,14 @@ echo CONFIG_TDMB_SPI=y>>cyanogenmod_${C1MODEL}_defconfig
 # We need this one only if we want to reuse the kernel in TWRP
 sed -i 's/# CONFIG_RD_LZMA is not set//' cyanogenmod_${C1MODEL}_defconfig
 echo CONFIG_RD_LZMA=y>>cyanogenmod_${C1MODEL}_defconfig
+# Fix video playback error, thanks to FullGreen
+sed -i 's/CONFIG_DMA_CMA=y//' cyanogenmod_${C1MODEL}_defconfig
+sed -i '/CONFIG_CMA_SIZE_MBYTES/d' cyanogenmod_${C1MODEL}_defconfig
+sed -i '/CONFIG_CMA_SIZE_SEL_MBYTES/d' cyanogenmod_${C1MODEL}_defconfig
+sed -i '/CONFIG_CMA_ALIGNMENT/d' cyanogenmod_${C1MODEL}_defconfig
+sed -i '/CONFIG_CMA_AREAS/d' cyanogenmod_${C1MODEL}_defconfig
+sed -i 's/CONFIG_USE_FIMC_CMA=y//' cyanogenmod_${C1MODEL}_defconfig
+sed -i 's/CONFIG_USE_MFC_CMA=y//' cyanogenmod_${C1MODEL}_defconfig
 # Model-specific kernel config
 if [ "$C1MODEL" = "c1lgt" ]; then
 echo CONFIG_MACH_C1_KOR_LGT=y>>cyanogenmod_${C1MODEL}_defconfig

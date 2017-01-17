@@ -13,9 +13,10 @@ else
 echo Unknown device model, C1MODEL should be c1lgt/c1skt/c1ktt
 exit
 fi
+BDIR=~/android/cm13stable
 echo Building CM13 for SHV-E210$C1VAR, this may take a long time...
 sleep 5
-cd ~/android/system
+cd $BDIR
 if grep -q Microsoft /proc/version; then
 cd build
 git checkout -f

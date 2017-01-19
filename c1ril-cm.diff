@@ -1,6 +1,6 @@
---- SamsungExynos4RIL.orig.java	2017-01-10 13:07:55.391966200 +0200
-+++ SamsungExynos4RIL.java	2017-01-10 13:39:03.594461600 +0200
-@@ -15,11 +15,20 @@
+--- SamsungExynos4RIL.orig	2017-01-18 15:00:12.931905900 +0200
++++ SamsungExynos4RIL.java	2017-01-19 22:29:54.400410800 +0200
+@@ -15,11 +15,21 @@
   * limitations under the License.
   */
  
@@ -10,6 +10,7 @@
 +https://github.com/CyanogenMod/android_device_samsung_i9300/blob/stable/cm-13.0-ZNH5Y/ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java
 +https://github.com/FullGreen/android_device_samsung_c1skt/blob/cm-13.0/ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java
 +https://github.com/CyanogenMod/android_device_samsung_i9500/blob/cm-13.0/ril/telephony/java/com/android/internal/telephony/ExynosXMM6360RIL.java
++And on original research
 +*/
 +
  package com.android.internal.telephony;
@@ -21,7 +22,7 @@
  import android.os.AsyncResult;
  import android.os.Handler;
  import android.os.Message;
-@@ -29,6 +38,11 @@ import android.telephony.ModemActivityIn
+@@ -29,6 +39,11 @@ import android.telephony.ModemActivityIn
  import android.telephony.Rlog;
  
  import android.telephony.PhoneNumberUtils;
@@ -33,7 +34,7 @@
  
  public class SamsungExynos4RIL extends RIL implements CommandsInterface {
  
-@@ -119,8 +133,11 @@ public class SamsungExynos4RIL extends R
+@@ -119,8 +134,11 @@ public class SamsungExynos4RIL extends R
      private Object mCatProCmdBuffer;
      /* private Message mPendingGetSimStatus; */
  
@@ -45,7 +46,7 @@
      }
  
      static String
-@@ -139,6 +156,88 @@ public class SamsungExynos4RIL extends R
+@@ -139,6 +157,89 @@ public class SamsungExynos4RIL extends R
          }
      }
  
@@ -83,6 +84,7 @@
 +            dc.number = p.readString();
 +            int np = p.readInt();
 +            dc.numberPresentation = DriverCall.presentationFromCLIP(np);
++            p.readInt(); // Ignore dcs
 +            dc.name = p.readString();
 +            dc.namePresentation = p.readInt();
 +            int uusInfoPresent = p.readInt();
@@ -134,7 +136,7 @@
  
      @Override
      protected RILRequest processSolicited (Parcel p) {
-@@ -415,6 +514,9 @@ public class SamsungExynos4RIL extends R
+@@ -415,6 +516,9 @@ public class SamsungExynos4RIL extends R
          RILRequest rr = RILRequest.obtain(RIL_REQUEST_DIAL, result);
          rr.mParcel.writeString(address);
          rr.mParcel.writeInt(clirMode);
@@ -144,7 +146,7 @@
  
          if (uusInfo == null) {
              rr.mParcel.writeInt(0); // UUS information is absent
-@@ -437,6 +539,10 @@ public class SamsungExynos4RIL extends R
+@@ -437,6 +541,10 @@ public class SamsungExynos4RIL extends R
          RILRequest rr = RILRequest.obtain(RIL_REQUEST_DIAL_EMERGENCY, result);
          rr.mParcel.writeString(address + "/");
          rr.mParcel.writeInt(clirMode);
@@ -155,12 +157,39 @@
          rr.mParcel.writeInt(0);  // UUS information is absent
  
          if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
-@@ -489,10 +595,43 @@ public class SamsungExynos4RIL extends R
+@@ -454,6 +562,25 @@ public class SamsungExynos4RIL extends R
+         try{switch(response) {
+             case RIL_UNSOL_STK_PROACTIVE_COMMAND: ret = responseString(p); break;
+             case RIL_UNSOL_STK_SEND_SMS_RESULT: ret = responseInts(p); break; // Samsung STK
++            case RIL_UNSOL_RELEASE_COMPLETE_MESSAGE: ret = responseVoid(p); break;
++            case RIL_UNSOL_AM: ret = responseString(p); break;
++            case RIL_UNSOL_WB_AMR_STATE: ret = responseInts(p); break;
++            case RIL_UNSOL_STK_CALL_CONTROL_RESULT: ret = responseVoid(p); break;
++            case RIL_UNSOL_DEVICE_READY_NOTI: ret = responseVoid(p); break;
++            case RIL_UNSOL_RESPONSE_HANDOVER: ret = responseVoid(p); break;
++            case RIL_UNSOL_IPV6_ADDR: ret = responseVoid(p); break;
++            case RIL_UNSOL_ON_USSD:
++                String[] array = null;
++                int length = p.readInt();
++                p.readInt(); // Ignore dcs
++                if (length >= 0) {
++                        array = new String[length];
++                        for (int i = 0 ; i < length ; i++) {
++                                array[i] = p.readString();
++                        }
++                }
++                ret = array;
++                break;
+             default:
+                 // Rewind the Parcel
+                 p.setDataPosition(dataPosition);
+@@ -489,10 +616,58 @@ public class SamsungExynos4RIL extends R
                              new AsyncResult (null, ret, null));
                  }
              break;
++            case RIL_UNSOL_RELEASE_COMPLETE_MESSAGE:
++            break;
 +            case RIL_UNSOL_AM:
-+                ret = responseString(p);
 +                String amString = (String) ret;
 +                Rlog.d(RILJ_LOG_TAG, "Executing AM: " + amString);
 +
@@ -170,18 +199,32 @@
 +                    e.printStackTrace();
 +                    Rlog.e(RILJ_LOG_TAG, "am " + amString + " could not be executed.");
 +                }
-+                break;
++            break;
 +            case RIL_UNSOL_WB_AMR_STATE:
-+                ret = responseInts(p);
 +                setWbAmr(((int[])ret)[0]);
-+                break;
-+            default:
-+                // Rewind the Parcel
-+                p.setDataPosition(dataPosition);
++            break;
++            case RIL_UNSOL_STK_CALL_CONTROL_RESULT:
++            break;
++            case RIL_UNSOL_DEVICE_READY_NOTI:
++            break;
++            case RIL_UNSOL_RESPONSE_HANDOVER:
++            break;
++            case RIL_UNSOL_IPV6_ADDR:
++            break;
++            case RIL_UNSOL_ON_USSD:
++                String[] resp = (String[])ret;
 +
-+                // Forward responses that we are not overriding to the super class
-+                super.processUnsolicited(p);
-+                return;
++                if (resp.length < 2) {
++                    resp = new String[2];
++                    resp[0] = ((String[])ret)[0];
++                    resp[1] = null;
++                }
++                if (RILJ_LOGD) unsljLogMore(response, resp[0]);
++                if (mUSSDRegistrant != null) {
++                    mUSSDRegistrant.notifyRegistrant(
++                        new AsyncResult (null, resp, null));
++                }
++            break;
          }
  
      }
@@ -199,7 +242,7 @@
      @Override
      public void setOnCatProactiveCmd(Handler h, int what, Object obj) {
          mCatProCmdRegistrant = new Registrant (h, what, obj);
-@@ -505,9 +644,11 @@ public class SamsungExynos4RIL extends R
+@@ -505,9 +680,11 @@ public class SamsungExynos4RIL extends R
  
      private void
      constructGsmSendSmsRilRequest (RILRequest rr, String smscPDU, String pdu) {
@@ -212,7 +255,7 @@
      }
  
      /**
-@@ -527,4 +668,85 @@ public class SamsungExynos4RIL extends R
+@@ -527,4 +704,85 @@ public class SamsungExynos4RIL extends R
          send(rr);
      }
  
@@ -229,7 +272,7 @@
 +
 +    @Override
 +    public void getRadioCapability(Message response) {
-+        riljLog("getRadioCapability: returning static radio capability");
++
 +        if (response != null) {
 +            Object ret = makeStaticRadioCapability();
 +            AsyncResult.forMessage(response, ret, null);

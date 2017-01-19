@@ -65,8 +65,8 @@ sed -i "s/i9300/$C1MODEL/g" BoardConfig.mk
 sed -i "s/GT-I9300/SHV-E210$C1VAR/g" BoardConfig.mk
 # Enlarge system partition
 sed -i 's/# assert/# system partition size\nBOARD_SYSTEMIMAGE_PARTITION_SIZE := 2147483648\n\n# assert/' BoardConfig.mk
-### Definition for rild patch
-##sed -i "s/COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING/COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING -DRIL_PRE_M_BLOBS/" BoardConfig.mk
+# Definition for rild patch
+sed -i "s/COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING/COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING -DRIL_PRE_M_BLOBS/" BoardConfig.mk
 sed -i "s/i9300/$C1MODEL/g" cm.mk
 sed -i "s/GT-I9300/SHV-E210$C1VAR/g" cm.mk
 sed -i "s/I9300/E210$C1VAR/g" cm.mk
@@ -100,7 +100,7 @@ sed -i "s/i9300/$C1MODEL/g" $C1MODEL.mk
 # Patch RILJ
 patch --no-backup-if-mismatch -t -r - ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java < $SDIR/c1ril-cm.diff
 # Add more proprietary files
-echo system/bin/rild>>proprietary-files.txt
+#echo system/bin/rild>>proprietary-files.txt
 echo system/lib/libril.so>>proprietary-files.txt
 echo system/lib/libsecril-client.so>>proprietary-files.txt
 echo system/lib/hw/sensors.smdk4x12.so>>proprietary-files.txt
@@ -143,13 +143,13 @@ cd hardware/samsung
 git checkout -f
 sed -i "s/xmm6262 xmm6360/xmm6262 cmc221 xmm6360/g" ril/Android.mk
 sed -i "s/xmm6262 xmm6360/xmm6262 cmc221 xmm6360/g" ril/libril/Android.mk
-### Patch rild to load properitary libril, thanks to Haxynox
-##cd ../ril
-##git checkout -f
-##sed -i 's/extern void RIL_register_socket (RIL_RadioFunctions \*(\*rilUimInit)/#ifndef RIL_PRE_M_BLOBS\nextern void RIL_register_socket (RIL_RadioFunctions *(*rilUimInit)/' rild/rild.c
-##sed -i 's/        (const struct RIL_Env \*, int, char \*\*), RIL_SOCKET_TYPE socketType, int argc, char \*\*argv);/        (const struct RIL_Env *, int, char **), RIL_SOCKET_TYPE socketType, int argc, char **argv);\n#endif/' rild/rild.c
-##sed -i 's/    if (rilUimInit) {/#ifndef RIL_PRE_M_BLOBS\n    if (rilUimInit) {/' rild/rild.c
-##sed -i 's/    RLOGD("RIL_register_socket completed");/    RLOGD("RIL_register_socket completed");\n#endif/' rild/rild.c
+# Patch rild to load properitary libril, thanks to Haxynox
+cd ../ril
+git checkout -f
+sed -i 's/extern void RIL_register_socket (RIL_RadioFunctions \*(\*rilUimInit)/#ifndef RIL_PRE_M_BLOBS\nextern void RIL_register_socket (RIL_RadioFunctions *(*rilUimInit)/' rild/rild.c
+sed -i 's/        (const struct RIL_Env \*, int, char \*\*), RIL_SOCKET_TYPE socketType, int argc, char \*\*argv);/        (const struct RIL_Env *, int, char **), RIL_SOCKET_TYPE socketType, int argc, char **argv);\n#endif/' rild/rild.c
+sed -i 's/    if (rilUimInit) {/#ifndef RIL_PRE_M_BLOBS\n    if (rilUimInit) {/' rild/rild.c
+sed -i 's/    RLOGD("RIL_register_socket completed");/    RLOGD("RIL_register_socket completed");\n#endif/' rild/rild.c
 croot
 # Patch init.rc for c1
 sed -i "/    onrestart restart cbd-lte/d" system/core/rootdir/init.rc

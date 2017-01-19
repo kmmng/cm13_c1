@@ -1,5 +1,5 @@
 #!/bin/bash
-# Stage 3 - compile CyanogenMod
+echo Stage 3 - compile CyanogenMod
 if [ ! "$C1MODEL" ]; then
 C1MODEL=c1lgt
 fi
@@ -20,7 +20,7 @@ cd $BDIR
 if grep -q Microsoft /proc/version; then
 cd build
 git checkout -f
-# Try to disable unsupported commands on WSL, Unfortunately, it doesn't help too much as the build hangs later anyway.
+# Try to work around unsupported commands on WSL, Unfortunately, it doesn't help too much as the build hangs later anyway.
 sed -i 's/mk_timer schedtool -B -n 1 -e ionice -n 1 //g' envsetup.sh
 cd ..
 fi

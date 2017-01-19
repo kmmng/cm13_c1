@@ -1,5 +1,5 @@
 #!/bin/bash
-# Stage 1 - configure OS for build and download Android source
+echo Stage 1 - configure OS for build and download Android source
 # Install required packages including openjdk
 echo Configuring build environment, this may take a VERY long time...
 sleep 5
@@ -15,6 +15,7 @@ mkdir -p $BDIR
 curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
 chmod a+x ~/bin/repo
 export PATH="$HOME/bin:$PATH"
+# Gello workaround
 sudo keytool -noprompt -alias mavensrve -import -file $SDIR/maven.crt -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts -storepass changeit
 echo JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64>~/.mavenrc
 echo MAVEN_OPTS=\"-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=JKS\">>~/.mavenrc

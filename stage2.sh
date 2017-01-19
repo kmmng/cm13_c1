@@ -1,5 +1,5 @@
 #!/bin/bash
-# Stage 2 - prepare source for compile and patch it for c1
+echo Stage 2 - prepare source for compile and patch it for c1
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BDIR=~/android/cm13stable
 if [ ! "$C1MODEL" ]; then
@@ -80,6 +80,8 @@ elif [ "$C1MODEL" = "c1ktt" ]; then
 sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210KXXUGMJ9:user\/release-keys/samsung\/c1ktt\/c1ktt:4.4.4\/KTU84P\/E210KKTUKPJ2:user\/release-keys/' cm.mk
 sed -i 's/m0xx-user 4\.3 JSS15J E210KXXUGMJ9 release-keys/c1ktt-user 4.4.4 KTU84P E210KKTUKPJ2 release-keys/' cm.mk
 fi
+sed -i "s/m0xx/$C1MODEL/" cm.mk
+sed -i "s/m0/$C1MODEL/" cm.mk
 # Add to build.prop some settings
 echo ro.ril.telephony.mqanelements=6>>system.prop
 echo persist.radio.add_power_save=1>>system.prop
@@ -97,6 +99,7 @@ sed -i "s/GT-I9300/SHV-E210$C1VAR/g" full_$C1MODEL.mk
 sed -i "s/I9300/E210$C1VAR/g" full_$C1MODEL.mk
 mv i9300.mk $C1MODEL.mk
 sed -i "s/i9300/$C1MODEL/g" $C1MODEL.mk
+sed -i "s/m0/$C1MODEL/g" $C1MODEL.mk
 # Patch RILJ
 patch --no-backup-if-mismatch -t -r - ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java < $SDIR/c1ril-cm.diff
 # Add more proprietary files

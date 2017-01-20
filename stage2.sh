@@ -100,6 +100,12 @@ sed -i "s/I9300/E210$C1VAR/g" full_$C1MODEL.mk
 mv i9300.mk $C1MODEL.mk
 sed -i "s/i9300/$C1MODEL/g" $C1MODEL.mk
 sed -i "s/m0/$C1MODEL/g" $C1MODEL.mk
+# Fix keylayout, thanks to FullGreen
+sed -i 's@# Product specific Packages@# Keylayout\nPRODUCT_COPY_FILES += \\\n    $(LOCAL_PATH)/keylayout/sec_touchkey.kl:system/usr/keylayout/sec_touchkey.kl\n\n# Product specific Packages@' $C1MODEL.mk
+mkdir -p keylayout
+echo key 158   BACK		VIRTUAL>keylayout/sec_touchkey.kl
+echo key 139   APP_SWITCH	VIRTUAL>>keylayout/sec_touchkey.kl
+sed -i 's@<integer name="config_deviceHardwareKeys">71</integer>@<integer name="config_deviceHardwareKeys">83</integer>\n<integer name="config_longPressOnAppSwitchBehavior">1</integer>@' overlay/frameworks/base/core/res/res/values/config.xml
 # Patch RILJ
 patch --no-backup-if-mismatch -t -r - ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java < $SDIR/c1ril-cm.diff
 # Add more proprietary files

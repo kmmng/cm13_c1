@@ -1,5 +1,5 @@
 #!/bin/bash
-echo Stage 2 - prepare source for compile and patch it for c1
+echo Stage 2 - prepare source for build and patch it for c1
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BDIR=~/android/cm13stable
 if [ ! "$C1MODEL" ]; then
@@ -21,7 +21,9 @@ sleep 5
 export PATH="$HOME/bin:$PATH"
 cd $BDIR
 source build/envsetup.sh
-rm -rf vendor/samsung
+rm -rf vendor/samsung/i9300
+rm -rf vendor/samsung/$C1MODEL
+rm -rf vendor/samsung/smdk4412-common
 # Init i9300 source. This will produce some errors but this is normal and we should continue.
 breakfast i9300
 # Start converting i9300 sources to c1
@@ -82,7 +84,7 @@ sed -i 's/m0xx-user 4\.3 JSS15J E210KXXUGMJ9 release-keys/c1ktt-user 4.4.4 KTU84
 fi
 sed -i "s/m0xx/$C1MODEL/" cm.mk
 sed -i "s/m0/$C1MODEL/" cm.mk
-# Add to build.prop some settings
+# Add settings to build.prop
 echo ro.ril.telephony.mqanelements=6>>system.prop
 echo persist.radio.add_power_save=1>>system.prop
 echo persist.radio.snapshot_enabled=1>>system.prop
@@ -260,6 +262,6 @@ sed -i 's/# CONFIG_SEC_MODEM_C1 is not set//' cyanogenmod_${C1MODEL}_defconfig
 echo CONFIG_SEC_MODEM_C1=y>>cyanogenmod_${C1MODEL}_defconfig
 echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>cyanogenmod_${C1MODEL}_defconfig
 fi
-# Now that everything is configured correctly we can run breakfast and it should complete without errors
+# Now that everything is configured correctly we can run breakfast again and it should complete without errors
 croot
 breakfast $C1MODEL

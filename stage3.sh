@@ -13,20 +13,25 @@ else
 echo Unknown device model, C1MODEL should be c1lgt/c1skt/c1ktt
 exit
 fi
-BDIR=~/android/cm13stable
+BDIR=/mnt/e/wsl/cm13
 echo Building CM13 for SHV-E210$C1VAR, this may take a long time...
-sleep 5
 cd $BDIR
 if grep -q Microsoft /proc/version; then
 cd build
 git checkout -f
-# Try to work around unsupported commands on WSL, Unfortunately, it doesn't help too much as the build hangs later anyway.
+# Workarounds for unsupported commands on WSL
 sed -i 's/mk_timer schedtool -B -n 1 -e ionice -n 1 //g' envsetup.sh
 cd ..
-fi
-source build/envsetup.sh
-# Enable ccache
+cp /usr/bin/bison prebuilts/misc/linux-x86/bison/
+cp /usr/bin/python2.7 prebuilts/python/linux-x86/2.7.5/bin/
+cd external/v8
+git checkout -f
+sed -i 's/ENABLE_V8_SNAPSHOT = true/ENABLE_V8_SNAPSHOT = false/' Android.mk
+cd ../..
+else
 export USE_CCACHE=1
 prebuilts/misc/linux-x86/ccache/ccache -M 50G
+fi
+source build/envsetup.sh
 # Compile
 brunch $C1MODEL

@@ -1,7 +1,7 @@
 #!/bin/bash
 echo Stage 2 - prepare source for build and patch it for c1
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BDIR=~/android/cm13stable
+BDIR=/mnt/e/wsl/cm13
 if [ ! "$C1MODEL" ]; then
 C1MODEL=c1lgt
 fi
@@ -17,7 +17,6 @@ exit
 fi
 echo Configuring source for SHV-E210$C1VAR...
 echo Errors may appear in the first part of the configuration, please ignore them.
-sleep 5
 export PATH="$HOME/bin:$PATH"
 cd $BDIR
 source build/envsetup.sh
@@ -102,7 +101,7 @@ sed -i "s/I9300/E210$C1VAR/g" full_$C1MODEL.mk
 mv i9300.mk $C1MODEL.mk
 sed -i "s/i9300/$C1MODEL/g" $C1MODEL.mk
 sed -i "s/m0/$C1MODEL/g" $C1MODEL.mk
-# Fix keylayout, thanks to FullGreen
+# Patch keylayout, thanks to FullGreen
 sed -i 's@# Product specific Packages@# Keylayout\nPRODUCT_COPY_FILES += \\\n    $(LOCAL_PATH)/keylayout/sec_touchkey.kl:system/usr/keylayout/sec_touchkey.kl\n\n# Product specific Packages@' $C1MODEL.mk
 mkdir -p keylayout
 echo key 158   BACK		VIRTUAL>keylayout/sec_touchkey.kl
@@ -112,8 +111,10 @@ sed -i 's@<integer name="config_deviceHardwareKeys">71</integer>@<integer name="
 patch --no-backup-if-mismatch -t -r - ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java < $SDIR/c1ril-cm.diff
 # Add more proprietary files
 #echo system/bin/rild>>proprietary-files.txt
+echo system/lib/libomission_avoidance.so>>proprietary-files.txt
 echo system/lib/libril.so>>proprietary-files.txt
-echo system/lib/libsecril-client.so>>proprietary-files.txt
+echo system/lib/libfactoryutil.so>>proprietary-files.txt
+#echo system/lib/libsecril-client.so>>proprietary-files.txt
 echo system/lib/hw/sensors.smdk4x12.so>>proprietary-files.txt
 # Patches config files to support LTE
 sed -i "s/i9300/$C1MODEL/g" system.prop
@@ -123,12 +124,12 @@ echo \<?xml version=\"1.0\" encoding=\"utf-8\"?\>>overlay/packages/services/Tele
 echo \<resources\>>>overlay/packages/services/Telephony/res/values/config.xml
 echo \<bool name=\"config_enabled_lte\" translatable=\"false\"\>true\</bool\>>>overlay/packages/services/Telephony/res/values/config.xml
 echo \</resources\>>>overlay/packages/services/Telephony/res/values/config.xml
-# Make SamsungServiceMode work with the new RIL
-mkdir -p overlay/packages/apps/SamsungServiceMode/res/values/
-echo \<?xml version=\"1.0\" encoding=\"utf-8\"?\>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
-echo \<resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
-echo \<integer name=\"config_api_version\"\>2\</integer\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
-echo \</resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
+## Make SamsungServiceMode work with the new RIL
+#mkdir -p overlay/packages/apps/SamsungServiceMode/res/values/
+#echo \<?xml version=\"1.0\" encoding=\"utf-8\"?\>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
+#echo \<resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
+#echo \<integer name=\"config_api_version\"\>2\</integer\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
+#echo \</resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
 # Patch smdk4412 common files
 cd ../smdk4412-common
 git checkout -f
@@ -263,5 +264,16 @@ echo CONFIG_SEC_MODEM_C1=y>>cyanogenmod_${C1MODEL}_defconfig
 echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>cyanogenmod_${C1MODEL}_defconfig
 fi
 # Now that everything is configured correctly we can run breakfast again and it should complete without errors
+croot
+# Use LineageOS prebuilt Gello instead of obsolete CM Maven artifact
+cd vendor/cm
+git checkout -f
+cd gello
+sed -i 's/LOCAL_MAVEN_REPO := https:\/\/maven.cyanogenmod.org\/artifactory\/gello_prebuilds/LOCAL_HTTP_FILE_VERSION := 40\nLOCAL_HTTP_PATH := https:\/\/github.com\/LineageOS\/android_packages_apps_Gello\/releases\/download\/$(LOCAL_HTTP_FILE_VERSION)/' Android.mk
+sed -i '/LOCAL_MAVEN_GROUP := org.cyanogenmod/d' Android.mk
+sed -i '/LOCAL_MAVEN_VERSION := 40/d' Android.mk
+sed -i 's/LOCAL_MAVEN_ARTIFACT := gello/LOCAL_HTTP_FILENAME := gello.apk/' Android.mk
+sed -i 's/LOCAL_MAVEN_PACKAGING := apk/LOCAL_HTTP_MD5SUM := $(LOCAL_HTTP_FILENAME).md5sum/' Android.mk
+sed -i 's/include $(BUILD_MAVEN_PREBUILT)/include $(BUILD_HTTP_PREBUILT)/' Android.mk
 croot
 breakfast $C1MODEL

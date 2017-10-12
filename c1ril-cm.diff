@@ -120,10 +120,10 @@
 +
 +            // Make sure there's a leading + on addresses with a TOA of 145
 +            dc.number = PhoneNumberUtils.stringFromStringAndTOA(dc.number, dc.TOA);
-+
++            /* Only for E210S libsec-ril
 +            p.readInt(); // ignore numberpluseTOA
 +            p.readString(); // ignore numberpluse
-+            p.readInt(); // ignore numberplusePresentation
++            p.readInt(); // ignore numberplusePresentation */
 +            response.add(dc);
 +
 +            if (dc.isVoicePrivacy) {

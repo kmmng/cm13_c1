@@ -25,7 +25,7 @@ rm -rf vendor/samsung/$C1MODEL
 rm -rf vendor/samsung/smdk4412-common
 # Init i9300 source. This will produce some errors but this is normal and we should continue.
 breakfast i9300
-echo No more errors should below after this message.
+echo No more errors should appear below this message.
 # Start converting i9300 sources to c1
 cd device/samsung
 rm -rf $C1MODEL

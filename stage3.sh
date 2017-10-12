@@ -13,7 +13,7 @@ else
 echo Unknown device model, C1MODEL should be c1lgt/c1skt/c1ktt
 exit
 fi
-BDIR=/mnt/e/wsl/cm13
+BDIR=~/cm13
 echo Building CM13 for SHV-E210$C1VAR, this may take a long time...
 cd $BDIR
 if grep -q Microsoft /proc/version; then
@@ -34,4 +34,5 @@ prebuilts/misc/linux-x86/ccache/ccache -M 50G
 fi
 source build/envsetup.sh
 # Compile
+export WITH_SU=true
 brunch $C1MODEL

@@ -1,7 +1,7 @@
 #!/bin/bash
 echo Stage 2 - prepare source for build and patch it for c1
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BDIR=/mnt/e/wsl/cm13
+BDIR=~/cm13
 if [ ! "$C1MODEL" ]; then
 C1MODEL=c1lgt
 fi
@@ -25,6 +25,7 @@ rm -rf vendor/samsung/$C1MODEL
 rm -rf vendor/samsung/smdk4412-common
 # Init i9300 source. This will produce some errors but this is normal and we should continue.
 breakfast i9300
+echo No more errors should below after this message.
 # Start converting i9300 sources to c1
 cd device/samsung
 rm -rf $C1MODEL
@@ -48,12 +49,12 @@ sed -i "/<device name=\"sco-out\">/ { N; /    <path name=\"on\">/ s/    <path na
 sed -i "/    <path name=\"off\">/ { N; /        <ctl name=\"AIF2DAC2L Mixer AIF1.1 Switch\" val=\"0\"\/>/ s/    <path name=\"off\">/    <path name=\"off\">\n        <ctl name=\"FM Control\" val=\"4\"\/>/}" configs/tiny_hw.xml
 sed -i -e "s/mmcblk0p12/mmcblk0p13/" -e "s/mmcblk0p11/mmcblk0p12/" -e "s/mmcblk0p10/mmcblk0p11/" -e "s/mmcblk0p9/mmcblk0p10/" -e "s/mmcblk0p8/mmcblk0p9/" rootdir/fstab.smdk4x12
 sed -i -e "s/mmcblk0p12/mmcblk0p13/" -e "s/mmcblk0p11/mmcblk0p12/" -e "s/mmcblk0p10/mmcblk0p11/" -e "s/mmcblk0p9 /mmcblk0p10/"  -e "s/mmcblk0p8/mmcblk0p9/" selinux/file_contexts
-sed -i "s/\/dev\/umts_boot0                         u:object_r:radio_device:s0/\/dev\/umts_boot0                         u:object_r:radio_device:s0\n\/dev\/cdma_boot0                         u:object_r:radio_device:s0/" selinux/file_contexts
-sed -i "s/\/dev\/umts_boot1                         u:object_r:radio_device:s0/\/dev\/umts_boot1                         u:object_r:radio_device:s0\n\/dev\/cdma_boot1                         u:object_r:radio_device:s0/" selinux/file_contexts
-sed -i "s/\/dev\/umts_ipc0                          u:object_r:radio_device:s0/\/dev\/umts_ipc0                          u:object_r:radio_device:s0\n\/dev\/cdma_ipc0                          u:object_r:radio_device:s0/" selinux/file_contexts
-sed -i "s/\/dev\/umts_ramdump0                      u:object_r:radio_device:s0/\/dev\/umts_ramdump0                      u:object_r:radio_device:s0\n\/dev\/cdma_ramdump0                      u:object_r:radio_device:s0/" selinux/file_contexts
-sed -i "s/\/dev\/umts_rfs0                          u:object_r:radio_device:s0/\/dev\/umts_rfs0                          u:object_r:radio_device:s0\n\/dev\/cdma_rfs0                          u:object_r:radio_device:s0/" selinux/file_contexts
-sed -i "s/\/dev\/cdma_rfs0                          u:object_r:radio_device:s0/\/dev\/cdma_rfs0                          u:object_r:radio_device:s0\n\/dev\/cdma_multipdp                      u:object_r:radio_device:s0/" selinux/file_contexts
+#sed -i "s/\/dev\/umts_boot0                         u:object_r:radio_device:s0/\/dev\/umts_boot0                         u:object_r:radio_device:s0\n\/dev\/cdma_boot0                         u:object_r:radio_device:s0/" selinux/file_contexts
+#sed -i "s/\/dev\/umts_boot1                         u:object_r:radio_device:s0/\/dev\/umts_boot1                         u:object_r:radio_device:s0\n\/dev\/cdma_boot1                         u:object_r:radio_device:s0/" selinux/file_contexts
+#sed -i "s/\/dev\/umts_ipc0                          u:object_r:radio_device:s0/\/dev\/umts_ipc0                          u:object_r:radio_device:s0\n\/dev\/cdma_ipc0                          u:object_r:radio_device:s0/" selinux/file_contexts
+#sed -i "s/\/dev\/umts_ramdump0                      u:object_r:radio_device:s0/\/dev\/umts_ramdump0                      u:object_r:radio_device:s0\n\/dev\/cdma_ramdump0                      u:object_r:radio_device:s0/" selinux/file_contexts
+#sed -i "s/\/dev\/umts_rfs0                          u:object_r:radio_device:s0/\/dev\/umts_rfs0                          u:object_r:radio_device:s0\n\/dev\/cdma_rfs0                          u:object_r:radio_device:s0/" selinux/file_contexts
+#sed -i "s/\/dev\/cdma_rfs0                          u:object_r:radio_device:s0/\/dev\/cdma_rfs0                          u:object_r:radio_device:s0\n\/dev\/cdma_multipdp                      u:object_r:radio_device:s0/" selinux/file_contexts
 fi
 sed -i "s@export LD_SHIM_LIBS /system/lib/libsec-ril@export LD_SHIM_LIBS /system/lib/libril@" rootdir/init.target.rc
 sed -i "s/    write \/data\/.cid.info 0/    write \/data\/.cid.info murata\n    chown wifi system \/data\/.cid.info\n    chmod 0660 \/data\/.cid.info/" rootdir/init.target.rc
@@ -68,21 +69,21 @@ sed -i "s/GT-I9300/SHV-E210$C1VAR/g" BoardConfig.mk
 sed -i 's/# assert/# system partition size\nBOARD_SYSTEMIMAGE_PARTITION_SIZE := 2147483648\n\n# assert/' BoardConfig.mk
 # Definition for rild patch
 sed -i "s/COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING/COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING -DRIL_PRE_M_BLOBS/" BoardConfig.mk
-sed -i "s/i9300/$C1MODEL/g" cm.mk
-sed -i "s/GT-I9300/SHV-E210$C1VAR/g" cm.mk
-sed -i "s/I9300/E210$C1VAR/g" cm.mk
+sed -i "s/i9300/$C1MODEL/g" lineage.mk
+sed -i "s/GT-I9300/SHV-E210$C1VAR/g" lineage.mk
+sed -i "s/I9300/E210$C1VAR/g" lineage.mk
 if [ "$C1MODEL" = "c1lgt" ]; then
-sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210LXXUGMJ9:user\/release-keys/samsung\/c1lgt\/c1lgt:4.4.4\/KTU84P\/E210LKLUKPJ2:user\/release-keys/' cm.mk
-sed -i 's/m0xx-user 4\.3 JSS15J E210LXXUGMJ9 release-keys/c1lgt-user 4.4.4 KTU84P E210LKLUKPJ2 release-keys/' cm.mk
+sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210LXXUGMJ9:user\/release-keys/samsung\/c1lgt\/c1lgt:4.4.4\/KTU84P\/E210LKLUKPJ2:user\/release-keys/' lineage.mk
+sed -i 's/m0xx-user 4\.3 JSS15J E210LXXUGMJ9 release-keys/c1lgt-user 4.4.4 KTU84P E210LKLUKPJ2 release-keys/' lineage.mk
 elif [ "$C1MODEL" = "c1skt" ]; then
-sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210SXXUGMJ9:user\/release-keys/samsung\/c1skt\/c1skt:4.4.4\/KTU84P\/E210SKSUKPJ2:user\/release-keys/' cm.mk
-sed -i 's/m0xx-user 4\.3 JSS15J E210SXXUGMJ9 release-keys/c1skt-user 4.4.4 KTU84P E210SKSUKPJ2 release-keys/' cm.mk
+sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210SXXUGMJ9:user\/release-keys/samsung\/c1skt\/c1skt:4.4.4\/KTU84P\/E210SKSUKPJ2:user\/release-keys/' lineage.mk
+sed -i 's/m0xx-user 4\.3 JSS15J E210SXXUGMJ9 release-keys/c1skt-user 4.4.4 KTU84P E210SKSUKPJ2 release-keys/' lineage.mk
 elif [ "$C1MODEL" = "c1ktt" ]; then
-sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210KXXUGMJ9:user\/release-keys/samsung\/c1ktt\/c1ktt:4.4.4\/KTU84P\/E210KKTUKPJ2:user\/release-keys/' cm.mk
-sed -i 's/m0xx-user 4\.3 JSS15J E210KXXUGMJ9 release-keys/c1ktt-user 4.4.4 KTU84P E210KKTUKPJ2 release-keys/' cm.mk
+sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210KXXUGMJ9:user\/release-keys/samsung\/c1ktt\/c1ktt:4.4.4\/KTU84P\/E210KKTUKPJ2:user\/release-keys/' lineage.mk
+sed -i 's/m0xx-user 4\.3 JSS15J E210KXXUGMJ9 release-keys/c1ktt-user 4.4.4 KTU84P E210KKTUKPJ2 release-keys/' lineage.mk
 fi
-sed -i "s/m0xx/$C1MODEL/" cm.mk
-sed -i "s/m0/$C1MODEL/" cm.mk
+sed -i "s/m0xx/$C1MODEL/" lineage.mk
+sed -i "s/m0/$C1MODEL/" lineage.mk
 # Add settings to build.prop
 echo ro.ril.telephony.mqanelements=6>>system.prop
 echo persist.radio.add_power_save=1>>system.prop
@@ -108,6 +109,7 @@ echo key 158   BACK		VIRTUAL>keylayout/sec_touchkey.kl
 echo key 139   APP_SWITCH	VIRTUAL>>keylayout/sec_touchkey.kl
 sed -i 's@<integer name="config_deviceHardwareKeys">71</integer>@<integer name="config_deviceHardwareKeys">83</integer>\n<integer name="config_longPressOnAppSwitchBehavior">1</integer>@' overlay/frameworks/base/core/res/res/values/config.xml
 # Patch RILJ
+#cp ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.bak
 patch --no-backup-if-mismatch -t -r - ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java < $SDIR/c1ril-cm.diff
 # Add more proprietary files
 #echo system/bin/rild>>proprietary-files.txt
@@ -137,6 +139,7 @@ git checkout -f
 sed -i '/adb root/d' extract-files.sh
 sed -i '/adb wait-for-device/d' extract-files.sh
 sed -i "s@adb pull /$FILE@cp ${SDIR}/blobs/$FILE@" extract-files.sh
+# TODO Make this change only for c1
 sed -i 's/phone-xhdpi-1024-dalvik-heap/phone-xhdpi-2048-dalvik-heap/' common.mk
 sed -i "s/i9300 i9305/i9300 c1lgt c1skt c1ktt i9305/g" Android.mk
 sed -i "s/i9300 i9305/i9300 c1lgt c1skt c1ktt i9305/g" extract-files.sh
@@ -196,84 +199,86 @@ cp $SDIR/camera/midas-camera.c arch/arm/mach-exynos/
 # sed -i 's@clk_set_rate(sclk, 100 \* 1000 \* 1000); /\*50MHz\*/@clk_set_rate(sclk, 50 * 1000 * 1000); /*25MHz*/@' arch/arm/mach-exynos/mach-midas.c
 cd arch/arm/configs
 # Kernel config for all c1 models
-cp cyanogenmod_i9300_defconfig cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_TARGET_LOCALE_EUR=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_TARGET_LOCALE_KOR is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_TARGET_LOCALE_KOR=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_MACH_M0=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_MACH_C1 is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_MACH_C1=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_WLAN_REGION_CODE=100//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_SEC_MODEM_M0=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_LTE_MODEM_CMC221 is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_LTE_MODEM_CMC221=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_LINK_DEVICE_DPRAM is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_LINK_DEVICE_DPRAM=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_LINK_DEVICE_USB is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_LINK_DEVICE_USB=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_USBHUB_USB3503 is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_USBHUB_USB3503=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_UMTS_MODEM_XMM6262=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_LINK_DEVICE_HSIC=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_SIPC_VER_5 is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_SIPC_VER_5=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_SND_DEBUG=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_FM_RADIO=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_FM_SI4705=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_TDMB is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_TDMB=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_TDMB_VENDOR_RAONTECH=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_TDMB_MTV318=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_TDMB_SPI=y>>cyanogenmod_${C1MODEL}_defconfig
+cp lineageos_i9300_defconfig lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_TARGET_LOCALE_EUR=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_TARGET_LOCALE_KOR is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_TARGET_LOCALE_KOR=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_MACH_M0=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_MACH_C1 is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_MACH_C1=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_WLAN_REGION_CODE=100//' lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_SEC_MODEM_M0=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_LTE_MODEM_CMC221 is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_LTE_MODEM_CMC221=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_LINK_DEVICE_DPRAM is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_LINK_DEVICE_DPRAM=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_LINK_DEVICE_USB is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_LINK_DEVICE_USB=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_USBHUB_USB3503 is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_USBHUB_USB3503=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_UMTS_MODEM_XMM6262=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_LINK_DEVICE_HSIC=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_SIPC_VER_5 is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_SIPC_VER_5=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_SND_DEBUG=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_FM_RADIO=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_FM_SI4705=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_TDMB is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_TDMB=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_TDMB_VENDOR_RAONTECH=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_TDMB_MTV318=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_TDMB_SPI=y>>lineageos_${C1MODEL}_defconfig
 # We need this one only if we want to reuse the kernel in TWRP
-sed -i 's/# CONFIG_RD_LZMA is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_RD_LZMA=y>>cyanogenmod_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_RD_LZMA is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_RD_LZMA=y>>lineageos_${C1MODEL}_defconfig
 # Fix video playback error, thanks to FullGreen
-sed -i 's/CONFIG_DMA_CMA=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i '/CONFIG_CMA_SIZE_MBYTES/d' cyanogenmod_${C1MODEL}_defconfig
-sed -i '/CONFIG_CMA_SIZE_SEL_MBYTES/d' cyanogenmod_${C1MODEL}_defconfig
-sed -i '/CONFIG_CMA_ALIGNMENT/d' cyanogenmod_${C1MODEL}_defconfig
-sed -i '/CONFIG_CMA_AREAS/d' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_USE_FIMC_CMA=y//' cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/CONFIG_USE_MFC_CMA=y//' cyanogenmod_${C1MODEL}_defconfig
+sed -i 's/CONFIG_DMA_CMA=y//' lineageos_${C1MODEL}_defconfig
+sed -i '/CONFIG_CMA_SIZE_MBYTES/d' lineageos_${C1MODEL}_defconfig
+sed -i '/CONFIG_CMA_SIZE_SEL_MBYTES/d' lineageos_${C1MODEL}_defconfig
+sed -i '/CONFIG_CMA_ALIGNMENT/d' lineageos_${C1MODEL}_defconfig
+sed -i '/CONFIG_CMA_AREAS/d' lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_USE_FIMC_CMA=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_USE_MFC_CMA=y//' lineageos_${C1MODEL}_defconfig
 # Model-specific kernel config
 if [ "$C1MODEL" = "c1lgt" ]; then
-echo CONFIG_MACH_C1_KOR_LGT=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_C1_LGT_EXPERIMENTAL=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_FM34_WE395 is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_FM34_WE395=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_WLAN_REGION_CODE=203>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_SEC_MODEM_C1_LGT is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_SEC_MODEM_C1_LGT=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_CDMA_MODEM_CBP72 is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_CDMA_MODEM_CBP72=y>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_LTE_VIA_SWITCH is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_LTE_VIA_SWITCH=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_CMC_MODEM_HSIC_SYSREV=11>>cyanogenmod_${C1MODEL}_defconfig
+echo CONFIG_MACH_C1_KOR_LGT=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_C1_LGT_EXPERIMENTAL=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_FM34_WE395 is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_FM34_WE395=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_WLAN_REGION_CODE=203>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_SEC_MODEM_C1_LGT is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_SEC_MODEM_C1_LGT=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_CDMA_MODEM_CBP72 is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_CDMA_MODEM_CBP72=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_LTE_VIA_SWITCH is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_LTE_VIA_SWITCH=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_CMC_MODEM_HSIC_SYSREV=11>>lineageos_${C1MODEL}_defconfig
 elif [ "$C1MODEL" = "c1skt" ]; then
-echo CONFIG_MACH_C1_KOR_SKT=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_WLAN_REGION_CODE=201>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_SEC_MODEM_C1 is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_SEC_MODEM_C1=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>cyanogenmod_${C1MODEL}_defconfig
+echo CONFIG_MACH_C1_KOR_SKT=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_WLAN_REGION_CODE=201>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_SEC_MODEM_C1 is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_SEC_MODEM_C1=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>lineageos_${C1MODEL}_defconfig
 elif [ "$C1MODEL" = "c1ktt" ]; then
-echo CONFIG_MACH_C1_KOR_SKT=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_WLAN_REGION_CODE=202>>cyanogenmod_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_SEC_MODEM_C1 is not set//' cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_SEC_MODEM_C1=y>>cyanogenmod_${C1MODEL}_defconfig
-echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>cyanogenmod_${C1MODEL}_defconfig
+echo CONFIG_MACH_C1_KOR_SKT=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_WLAN_REGION_CODE=202>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_SEC_MODEM_C1 is not set//' lineageos_${C1MODEL}_defconfig
+echo CONFIG_SEC_MODEM_C1=y>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>lineageos_${C1MODEL}_defconfig
 fi
 # Now that everything is configured correctly we can run breakfast again and it should complete without errors
 croot
-# Use LineageOS prebuilt Gello instead of obsolete CM Maven artifact
-cd vendor/cm
-git checkout -f
-cd gello
-sed -i 's/LOCAL_MAVEN_REPO := https:\/\/maven.cyanogenmod.org\/artifactory\/gello_prebuilds/LOCAL_HTTP_FILE_VERSION := 40\nLOCAL_HTTP_PATH := https:\/\/github.com\/LineageOS\/android_packages_apps_Gello\/releases\/download\/$(LOCAL_HTTP_FILE_VERSION)/' Android.mk
-sed -i '/LOCAL_MAVEN_GROUP := org.cyanogenmod/d' Android.mk
-sed -i '/LOCAL_MAVEN_VERSION := 40/d' Android.mk
-sed -i 's/LOCAL_MAVEN_ARTIFACT := gello/LOCAL_HTTP_FILENAME := gello.apk/' Android.mk
-sed -i 's/LOCAL_MAVEN_PACKAGING := apk/LOCAL_HTTP_MD5SUM := $(LOCAL_HTTP_FILENAME).md5sum/' Android.mk
-sed -i 's/include $(BUILD_MAVEN_PREBUILT)/include $(BUILD_HTTP_PREBUILT)/' Android.mk
-croot
+## Use LineageOS prebuilt Gello instead of defunct CM Maven artifact
+## Needed only if compiling from obsolete sources that still referring to defunct Cyanogen servers
+#cd vendor/cm
+#git checkout -f
+#cd gello
+#sed -i 's/LOCAL_MAVEN_REPO := https:\/\/maven.cyanogenmod.org\/artifactory\/gello_prebuilds/LOCAL_HTTP_FILE_VERSION := 40\nLOCAL_HTTP_PATH := https:\/\/github.com\/LineageOS\/android_packages_apps_Gello\/releases\/download\/$(LOCAL_HTTP_FILE_VERSION)/' Android.mk
+#sed -i '/LOCAL_MAVEN_GROUP := org.cyanogenmod/d' Android.mk
+#sed -i '/LOCAL_MAVEN_VERSION := 40/d' Android.mk
+#sed -i 's/LOCAL_MAVEN_ARTIFACT := gello/LOCAL_HTTP_FILENAME := gello.apk/' Android.mk
+#sed -i 's/LOCAL_MAVEN_PACKAGING := apk/LOCAL_HTTP_MD5SUM := $(LOCAL_HTTP_FILENAME).md5sum/' Android.mk
+#sed -i 's/include $(BUILD_MAVEN_PREBUILT)/include $(BUILD_HTTP_PREBUILT)/' Android.mk
+#croot
+export WITH_SU=true
 breakfast $C1MODEL

@@ -20,6 +20,7 @@ echo Errors may appear in the first part of the configuration, please ignore the
 export PATH="$HOME/bin:$PATH"
 cd $BDIR
 source build/envsetup.sh
+# Cleanup
 rm -rf vendor/samsung/i9300
 rm -rf vendor/samsung/$C1MODEL
 rm -rf vendor/samsung/smdk4412-common
@@ -109,14 +110,13 @@ echo key 158   BACK		VIRTUAL>keylayout/sec_touchkey.kl
 echo key 139   APP_SWITCH	VIRTUAL>>keylayout/sec_touchkey.kl
 sed -i 's@<integer name="config_deviceHardwareKeys">71</integer>@<integer name="config_deviceHardwareKeys">83</integer>\n<integer name="config_longPressOnAppSwitchBehavior">1</integer>@' overlay/frameworks/base/core/res/res/values/config.xml
 # Patch RILJ
-#cp ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.bak
 patch --no-backup-if-mismatch -t -r - ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java < $SDIR/c1ril-cm.diff
 # Add more proprietary files
-#echo system/bin/rild>>proprietary-files.txt
+#echo system/bin/rild>>proprietary-files.txt # Not needed in current build
 echo system/lib/libomission_avoidance.so>>proprietary-files.txt
 echo system/lib/libril.so>>proprietary-files.txt
 echo system/lib/libfactoryutil.so>>proprietary-files.txt
-#echo system/lib/libsecril-client.so>>proprietary-files.txt
+#echo system/lib/libsecril-client.so>>proprietary-files.txt # Not needed in current build
 echo system/lib/hw/sensors.smdk4x12.so>>proprietary-files.txt
 # Patches config files to support LTE
 sed -i "s/i9300/$C1MODEL/g" system.prop
@@ -126,7 +126,7 @@ echo \<?xml version=\"1.0\" encoding=\"utf-8\"?\>>overlay/packages/services/Tele
 echo \<resources\>>>overlay/packages/services/Telephony/res/values/config.xml
 echo \<bool name=\"config_enabled_lte\" translatable=\"false\"\>true\</bool\>>>overlay/packages/services/Telephony/res/values/config.xml
 echo \</resources\>>>overlay/packages/services/Telephony/res/values/config.xml
-## Make SamsungServiceMode work with the new RIL
+## Only if we use the new libsec-ril, make SamsungServiceMode work with it
 #mkdir -p overlay/packages/apps/SamsungServiceMode/res/values/
 #echo \<?xml version=\"1.0\" encoding=\"utf-8\"?\>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
 #echo \<resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
@@ -268,8 +268,7 @@ echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>lineageos_${C1MODEL}_defconfig
 fi
 # Now that everything is configured correctly we can run breakfast again and it should complete without errors
 croot
-## Use LineageOS prebuilt Gello instead of defunct CM Maven artifact
-## Needed only if compiling from obsolete sources that still referring to defunct Cyanogen servers
+## Use LineageOS prebuilt Gello instead of defunct CM Maven artifact, needed only if compiling from obsolete sources that still referring to defunct Cyanogen servers
 #cd vendor/cm
 #git checkout -f
 #cd gello

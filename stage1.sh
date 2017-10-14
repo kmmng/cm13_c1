@@ -14,10 +14,6 @@ mkdir -p $BDIR
 curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
 chmod a+x ~/bin/repo
 export PATH="$HOME/bin:$PATH"
-## Gello workaround
-#sudo keytool -noprompt -alias mavensrve -import -file $SDIR/maven.crt -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts -storepass changeit
-#echo JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64>~/.mavenrc
-#echo MAVEN_OPTS=\"-Djavax.net.ssl.trustStore=/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=JKS\">>~/.mavenrc
 # Download Android source. This will take a VERY LONG time. If download fails, the script should be run again and the download will be resumed.
 cd $BDIR
 repo init -u https://github.com/LineageOS/android.git -b cm-13.0

@@ -3,7 +3,7 @@ echo Stage 1 - configure OS for build and download Android source
 # Install required packages including openjdk
 echo Configuring build environment, this may take a VERY long time...
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BDIR=~/cm13
+eval BDIR=`cat $SDIR/builddir`
 sudo add-apt-repository -y ppa:openjdk-r/ppa
 sudo apt-get update
 sudo apt-get install -y bc bison build-essential curl flex git gnupg gperf libesd0-dev liblz4-tool libncurses5-dev libsdl1.2-dev libxml2 libxml2-utils lzop maven pngcrush
@@ -16,5 +16,5 @@ chmod a+x ~/bin/repo
 export PATH="$HOME/bin:$PATH"
 # Download Android source. This will take a VERY LONG time. If download fails, the script should be run again and the download will be resumed.
 cd $BDIR
-repo init -u https://github.com/LineageOS/android.git -b cm-13.0
+repo init -u https://github.com/LineageOS/android.git -b cm-13.0-ZNH5Y # cm-13.0 for latest cm13 build, cm-13.0-ZNH5Y for stable build
 repo sync --force-sync

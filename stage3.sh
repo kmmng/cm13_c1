@@ -1,5 +1,7 @@
 #!/bin/bash
 echo Stage 3 - compile CyanogenMod
+SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+eval BDIR=`cat $SDIR/builddir`
 if [ ! "$C1MODEL" ]; then
 C1MODEL=c1lgt
 fi
@@ -13,7 +15,6 @@ else
 echo Unknown device model, C1MODEL should be c1lgt/c1skt/c1ktt
 exit
 fi
-BDIR=~/cm13
 echo Building CM13 for SHV-E210$C1VAR, this may take a long time...
 cd $BDIR
 if grep -q Microsoft /proc/version; then

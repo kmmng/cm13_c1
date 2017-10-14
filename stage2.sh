@@ -1,7 +1,7 @@
 #!/bin/bash
 echo Stage 2 - prepare source for build and patch it for c1
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BDIR=~/cm13
+eval BDIR=`cat $SDIR/builddir`
 if [ ! "$C1MODEL" ]; then
 C1MODEL=c1lgt
 fi
@@ -50,6 +50,7 @@ sed -i "/<device name=\"sco-out\">/ { N; /    <path name=\"on\">/ s/    <path na
 sed -i "/    <path name=\"off\">/ { N; /        <ctl name=\"AIF2DAC2L Mixer AIF1.1 Switch\" val=\"0\"\/>/ s/    <path name=\"off\">/    <path name=\"off\">\n        <ctl name=\"FM Control\" val=\"4\"\/>/}" configs/tiny_hw.xml
 sed -i -e "s/mmcblk0p12/mmcblk0p13/" -e "s/mmcblk0p11/mmcblk0p12/" -e "s/mmcblk0p10/mmcblk0p11/" -e "s/mmcblk0p9/mmcblk0p10/" -e "s/mmcblk0p8/mmcblk0p9/" rootdir/fstab.smdk4x12
 sed -i -e "s/mmcblk0p12/mmcblk0p13/" -e "s/mmcblk0p11/mmcblk0p12/" -e "s/mmcblk0p10/mmcblk0p11/" -e "s/mmcblk0p9 /mmcblk0p10/"  -e "s/mmcblk0p8/mmcblk0p9/" selinux/file_contexts
+# Only if we use CDMA modem
 #sed -i "s/\/dev\/umts_boot0                         u:object_r:radio_device:s0/\/dev\/umts_boot0                         u:object_r:radio_device:s0\n\/dev\/cdma_boot0                         u:object_r:radio_device:s0/" selinux/file_contexts
 #sed -i "s/\/dev\/umts_boot1                         u:object_r:radio_device:s0/\/dev\/umts_boot1                         u:object_r:radio_device:s0\n\/dev\/cdma_boot1                         u:object_r:radio_device:s0/" selinux/file_contexts
 #sed -i "s/\/dev\/umts_ipc0                          u:object_r:radio_device:s0/\/dev\/umts_ipc0                          u:object_r:radio_device:s0\n\/dev\/cdma_ipc0                          u:object_r:radio_device:s0/" selinux/file_contexts
@@ -73,23 +74,34 @@ sed -i "s/COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING/COMMON_GLOBAL_CFLAGS
 sed -i "s/i9300/$C1MODEL/g" lineage.mk
 sed -i "s/GT-I9300/SHV-E210$C1VAR/g" lineage.mk
 sed -i "s/I9300/E210$C1VAR/g" lineage.mk
+sed -i "s/i9300/$C1MODEL/g" cm.mk
+sed -i "s/GT-I9300/SHV-E210$C1VAR/g" cm.mk
+sed -i "s/I9300/E210$C1VAR/g" cm.mk
 if [ "$C1MODEL" = "c1lgt" ]; then
 sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210LXXUGMJ9:user\/release-keys/samsung\/c1lgt\/c1lgt:4.4.4\/KTU84P\/E210LKLUKPJ2:user\/release-keys/' lineage.mk
 sed -i 's/m0xx-user 4\.3 JSS15J E210LXXUGMJ9 release-keys/c1lgt-user 4.4.4 KTU84P E210LKLUKPJ2 release-keys/' lineage.mk
+sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210LXXUGMJ9:user\/release-keys/samsung\/c1lgt\/c1lgt:4.4.4\/KTU84P\/E210LKLUKPJ2:user\/release-keys/' cm.mk
+sed -i 's/m0xx-user 4\.3 JSS15J E210LXXUGMJ9 release-keys/c1lgt-user 4.4.4 KTU84P E210LKLUKPJ2 release-keys/' cm.mk
 elif [ "$C1MODEL" = "c1skt" ]; then
 sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210SXXUGMJ9:user\/release-keys/samsung\/c1skt\/c1skt:4.4.4\/KTU84P\/E210SKSUKPJ2:user\/release-keys/' lineage.mk
 sed -i 's/m0xx-user 4\.3 JSS15J E210SXXUGMJ9 release-keys/c1skt-user 4.4.4 KTU84P E210SKSUKPJ2 release-keys/' lineage.mk
+sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210SXXUGMJ9:user\/release-keys/samsung\/c1skt\/c1skt:4.4.4\/KTU84P\/E210SKSUKPJ2:user\/release-keys/' cm.mk
+sed -i 's/m0xx-user 4\.3 JSS15J E210SXXUGMJ9 release-keys/c1skt-user 4.4.4 KTU84P E210SKSUKPJ2 release-keys/' cm.mk
 elif [ "$C1MODEL" = "c1ktt" ]; then
 sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210KXXUGMJ9:user\/release-keys/samsung\/c1ktt\/c1ktt:4.4.4\/KTU84P\/E210KKTUKPJ2:user\/release-keys/' lineage.mk
 sed -i 's/m0xx-user 4\.3 JSS15J E210KXXUGMJ9 release-keys/c1ktt-user 4.4.4 KTU84P E210KKTUKPJ2 release-keys/' lineage.mk
+sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210KXXUGMJ9:user\/release-keys/samsung\/c1ktt\/c1ktt:4.4.4\/KTU84P\/E210KKTUKPJ2:user\/release-keys/' cm.mk
+sed -i 's/m0xx-user 4\.3 JSS15J E210KXXUGMJ9 release-keys/c1ktt-user 4.4.4 KTU84P E210KKTUKPJ2 release-keys/' cm.mk
 fi
 sed -i "s/m0xx/$C1MODEL/" lineage.mk
 sed -i "s/m0/$C1MODEL/" lineage.mk
+sed -i "s/m0xx/$C1MODEL/" cm.mk
+sed -i "s/m0/$C1MODEL/" cm.mk
 # Add settings to build.prop
-echo ro.ril.telephony.mqanelements=6>>system.prop
 echo persist.radio.add_power_save=1>>system.prop
 echo persist.radio.snapshot_enabled=1>>system.prop
 echo persist.radio.snapshot_timer=22>>system.prop
+#echo ro.ril.telephony.mqanelements=6>>system.prop
 #echo telephony.lteOnGsmDevice=1>>system.prop
 #echo telephony.lteOnCdmaDevice=0>>system.prop
 #echo persist.radio.use_se_table_only=1>>system.prop
@@ -103,6 +115,7 @@ sed -i "s/I9300/E210$C1VAR/g" full_$C1MODEL.mk
 mv i9300.mk $C1MODEL.mk
 sed -i "s/i9300/$C1MODEL/g" $C1MODEL.mk
 sed -i "s/m0/$C1MODEL/g" $C1MODEL.mk
+sed -i "s@$(call inherit-product, device/samsung/smdk4412-common/common.mk)@$(call inherit-product, device/samsung/smdk4412-common/common.mk)\n\n$(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)@" $C1MODEL.mk
 # Patch keylayout, thanks to FullGreen
 sed -i 's@# Product specific Packages@# Keylayout\nPRODUCT_COPY_FILES += \\\n    $(LOCAL_PATH)/keylayout/sec_touchkey.kl:system/usr/keylayout/sec_touchkey.kl\n\n# Product specific Packages@' $C1MODEL.mk
 mkdir -p keylayout
@@ -112,12 +125,12 @@ sed -i 's@<integer name="config_deviceHardwareKeys">71</integer>@<integer name="
 # Patch RILJ
 patch --no-backup-if-mismatch -t -r - ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java < $SDIR/c1ril-cm.diff
 # Add more proprietary files
-#echo system/bin/rild>>proprietary-files.txt # Not needed in current build
 echo system/lib/libomission_avoidance.so>>proprietary-files.txt
 echo system/lib/libril.so>>proprietary-files.txt
 echo system/lib/libfactoryutil.so>>proprietary-files.txt
-#echo system/lib/libsecril-client.so>>proprietary-files.txt # Not needed in current build
 echo system/lib/hw/sensors.smdk4x12.so>>proprietary-files.txt
+#echo system/lib/libsecril-client.so>>proprietary-files.txt # Not needed in current build
+#echo system/bin/rild>>proprietary-files.txt # Not needed in current build
 # Patches config files to support LTE
 sed -i "s/i9300/$C1MODEL/g" system.prop
 sed -i 's/>GPRS|EDGE|WCDMA</>GSM|WCDMA|LTE</' overlay/frameworks/base/core/res/res/values/config.xml
@@ -132,15 +145,13 @@ echo \</resources\>>>overlay/packages/services/Telephony/res/values/config.xml
 #echo \<resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
 #echo \<integer name=\"config_api_version\"\>2\</integer\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
 #echo \</resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
-# Patch smdk4412 common files
+# Patch smdk4412 common files, all patches here shouldn't interfere with builds for other smdk4412 devices
 cd ../smdk4412-common
 git checkout -f
 # Replace adb commands also here
 sed -i '/adb root/d' extract-files.sh
 sed -i '/adb wait-for-device/d' extract-files.sh
 sed -i "s@adb pull /$FILE@cp ${SDIR}/blobs/$FILE@" extract-files.sh
-# TODO Make this change only for c1
-sed -i 's/phone-xhdpi-1024-dalvik-heap/phone-xhdpi-2048-dalvik-heap/' common.mk
 sed -i "s/i9300 i9305/i9300 c1lgt c1skt c1ktt i9305/g" Android.mk
 sed -i "s/i9300 i9305/i9300 c1lgt c1skt c1ktt i9305/g" extract-files.sh
 sed -i "s/i9300 i9305/i9300 c1lgt c1skt c1ktt i9305/g" camera/Android.mk
@@ -173,12 +184,13 @@ sed -i "s/    group radio cache inet misc audio log qcom_diag/    group radio ca
 cd kernel/samsung/smdk4412
 git checkout -f
 if grep -q Microsoft /proc/version; then
-# Workaround for strange WSL bug
+# Workaround for WSL
 cd include
 rm asm
 ln -s asm-generic asm
 cd ..
 fi
+# Update modem drivers from Samsung sources
 rm -rf drivers/misc/modem_if_c1
 rm -rf include/linux/platform_data/modem_c1.h
 patch --no-backup-if-mismatch -t -r - -p1 < $SDIR/c1kernel-cm.diff
@@ -190,7 +202,7 @@ sed -i 's/	sromc_config_access_timing(bnk_cfg->csn, tm_cfg);/@ @ @ @/' arch/arm/
 sed -i '1,/@ @ @ @/s/@ @ @ @/	sromc_config_access_timing(bnk_cfg->csn, tm_cfg);/' arch/arm/mach-exynos/board-c1lgt-modems.c
 sed -i '1,/@ @ @ @/s/@ @ @ @/	sromc_config_access_timing(bnk_cfg->csn, tm_cfg);\n#endif/' arch/arm/mach-exynos/board-c1lgt-modems.c
 sed -i 's/	platform_device_register(\&cdma_modem);/#if !defined(CONFIG_C1_LGT_EXPERIMENTAL)\n	platform_device_register(\&cdma_modem);\n#endif/' arch/arm/mach-exynos/board-c1lgt-modems.c
-# Update camera kernel driver from Samsung source, this seems to make camera app glitches less severe
+# Update camera kernel driver from Samsung sources, this should make camera app glitches less severe
 cp $SDIR/camera/s5c73m3.c drivers/media/video/
 cp $SDIR/camera/s5c73m3.h drivers/media/video/
 cp $SDIR/camera/s5c73m3_spi.c drivers/media/video/
@@ -268,16 +280,16 @@ echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>lineageos_${C1MODEL}_defconfig
 fi
 # Now that everything is configured correctly we can run breakfast again and it should complete without errors
 croot
-## Use LineageOS prebuilt Gello instead of defunct CM Maven artifact, needed only if compiling from obsolete sources that still referring to defunct Cyanogen servers
-#cd vendor/cm
-#git checkout -f
-#cd gello
-#sed -i 's/LOCAL_MAVEN_REPO := https:\/\/maven.cyanogenmod.org\/artifactory\/gello_prebuilds/LOCAL_HTTP_FILE_VERSION := 40\nLOCAL_HTTP_PATH := https:\/\/github.com\/LineageOS\/android_packages_apps_Gello\/releases\/download\/$(LOCAL_HTTP_FILE_VERSION)/' Android.mk
-#sed -i '/LOCAL_MAVEN_GROUP := org.cyanogenmod/d' Android.mk
-#sed -i '/LOCAL_MAVEN_VERSION := 40/d' Android.mk
-#sed -i 's/LOCAL_MAVEN_ARTIFACT := gello/LOCAL_HTTP_FILENAME := gello.apk/' Android.mk
-#sed -i 's/LOCAL_MAVEN_PACKAGING := apk/LOCAL_HTTP_MD5SUM := $(LOCAL_HTTP_FILENAME).md5sum/' Android.mk
-#sed -i 's/include $(BUILD_MAVEN_PREBUILT)/include $(BUILD_HTTP_PREBUILT)/' Android.mk
-#croot
+# Use LineageOS prebuilt Gello instead of defunct CM Maven artifact, needed only if compiling from obsolete sources that still referring to defunct Cyanogen servers, but should cause no harm on newer sources
+cd vendor/cm
+git checkout -f
+cd gello
+sed -i 's/LOCAL_MAVEN_REPO := https:\/\/maven.cyanogenmod.org\/artifactory\/gello_prebuilds/LOCAL_HTTP_FILE_VERSION := 40\nLOCAL_HTTP_PATH := https:\/\/github.com\/LineageOS\/android_packages_apps_Gello\/releases\/download\/$(LOCAL_HTTP_FILE_VERSION)/' Android.mk
+sed -i '/LOCAL_MAVEN_GROUP := org.cyanogenmod/d' Android.mk
+sed -i '/LOCAL_MAVEN_VERSION := 40/d' Android.mk
+sed -i 's/LOCAL_MAVEN_ARTIFACT := gello/LOCAL_HTTP_FILENAME := gello.apk/' Android.mk
+sed -i 's/LOCAL_MAVEN_PACKAGING := apk/LOCAL_HTTP_MD5SUM := $(LOCAL_HTTP_FILENAME).md5sum/' Android.mk
+sed -i 's/include $(BUILD_MAVEN_PREBUILT)/include $(BUILD_HTTP_PREBUILT)/' Android.mk
+croot
 export WITH_SU=true
 breakfast $C1MODEL

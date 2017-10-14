@@ -16,5 +16,5 @@ chmod a+x ~/bin/repo
 export PATH="$HOME/bin:$PATH"
 # Download Android source. This will take a VERY LONG time. If download fails, the script should be run again and the download will be resumed.
 cd $BDIR
-repo init -u https://github.com/LineageOS/android.git -b cm-13.0-ZNH5Y # cm-13.0 for latest cm13 build, cm-13.0-ZNH5Y for stable build
+repo init -u https://github.com/LineageOS/android.git -b "stable/cm-13.0-ZNH5Y" # cm-13.0 for latest cm13 build, stable/cm-13.0-ZNH5Y for stable build
 repo sync --force-sync

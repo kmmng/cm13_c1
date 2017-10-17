@@ -1,5 +1,5 @@
---- SamsungExynos4RIL.bak	2017-09-27 23:13:36.777150700 +0300
-+++ SamsungExynos4RIL.java	2017-10-07 20:44:57.000000000 +0300
+--- SamsungExynos4RIL.bak	2017-10-16 23:56:39.280758900 +0300
++++ SamsungExynos4RIL.java	2017-10-17 00:04:25.855549500 +0300
 @@ -15,11 +15,21 @@
   * limitations under the License.
   */
@@ -82,17 +82,17 @@
 +        for (int i = 0 ; i < num ; i++) {
 +            dc = new DriverCall();
 +            dc.state = DriverCall.stateFromCLCC(p.readInt());
-+            dc.index = p.readInt();
++            dc.index = p.readInt() & 0xff; //& 0xff only for new libsec-ril
 +            dc.TOA = p.readInt();
 +            dc.isMpty = p.readInt() != 0;
 +            dc.isMT = p.readInt() != 0;
 +            dc.als = p.readInt();
 +            dc.isVoice = p.readInt() != 0;
 +            p.readInt(); // ignore isVideo
-+            /* Only for new libsec-ril
-+            p.readInt();
-+            p.readInt();
-+            p.readString();*/
++            // Only for new libsec-ril
++            p.readInt(); // ignore type
++            p.readInt(); // ignore domain
++            p.readString(); // ignore extras - up to here
 +            dc.isVoicePrivacy = (0 != p.readInt());
 +            dc.number = p.readString();
 +            int np = p.readInt();
@@ -207,15 +207,15 @@
 +        String strings[] = (String [])responseStrings(p);
 +        ArrayList<OperatorInfo> ret;
 +
-+        if (strings.length % 5 != 0) {
++        if (strings.length % 6 != 0) {
 +            throw new RuntimeException(
 +                "RIL_REQUEST_QUERY_AVAILABLE_NETWORKS: invalid response. Got "
-+                + strings.length + " strings, expected multiple of 5");
++                + strings.length + " strings, expected multiple of 6");
 +        }
 +
-+        ret = new ArrayList<OperatorInfo>(strings.length / 5);
++        ret = new ArrayList<OperatorInfo>(strings.length / 6);
 +
-+        for (int i = 0 ; i < strings.length ; i += 5) {
++        for (int i = 0 ; i < strings.length ; i += 6) {
 +            ret.add (
 +                new OperatorInfo(
 +                    strings[i+0],
@@ -234,10 +234,10 @@
          rr.mParcel.writeString(address);
          rr.mParcel.writeInt(clirMode);
 -
-+        /* Only for new libsec-ril
++        // Only for new libsec-ril
 +        rr.mParcel.writeInt(0);
 +        rr.mParcel.writeInt(1);
-+        rr.mParcel.writeString("");*/
++        rr.mParcel.writeString(""); // up to here
          if (uusInfo == null) {
              rr.mParcel.writeInt(0); // UUS information is absent
          } else {
@@ -245,10 +245,10 @@
          RILRequest rr = RILRequest.obtain(RIL_REQUEST_DIAL_EMERGENCY, result);
          rr.mParcel.writeString(address + "/");
          rr.mParcel.writeInt(clirMode);
-+        /* Only for new libsec-ril
++        // Only for new libsec-ril
 +        rr.mParcel.writeInt(0);
 +        rr.mParcel.writeInt(3);
-+        rr.mParcel.writeString("");*/
++        rr.mParcel.writeString(""); // up to here
          rr.mParcel.writeInt(0);  // UUS information is absent
  
          if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
@@ -334,12 +334,12 @@
      private void
      constructGsmSendSmsRilRequest (RILRequest rr, String smscPDU, String pdu) {
 -        rr.mParcel.writeInt(2);
-+        rr.mParcel.writeInt(2); // 2 is the default value, 4 is in FullGreen version, what is the meaning ?
++        rr.mParcel.writeInt(2); // 2 is the default value, 4 is in FullGreen version
          rr.mParcel.writeString(smscPDU);
          rr.mParcel.writeString(pdu);
-+        /* FullGreen addition ?
++        /* FullGreen addition
 +        rr.mParcel.writeString(Integer.toString(0));
-+        rr.mParcel.writeString(Integer.toString(1));*/
++        rr.mParcel.writeString(Integer.toString(1)); */
      }
  
      /**
@@ -347,7 +347,7 @@
          send(rr);
      }
  
-+    /* Only for new libsec-ril
++    // Only for new libsec-ril
 +    @Override
 +    public void
 +    acceptCall (Message result) {
@@ -357,7 +357,7 @@
 +        rr.mParcel.writeInt(1);
 +        rr.mParcel.writeInt(0);
 +        send(rr);
-+    }*/
++    } // up to here
 +
 +    @Override
 +    public void getRadioCapability(Message response) {

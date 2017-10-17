@@ -71,33 +71,30 @@ sed -i "s/GT-I9300/SHV-E210$C1VAR/g" BoardConfig.mk
 sed -i 's/# assert/# system partition size\nBOARD_SYSTEMIMAGE_PARTITION_SIZE := 2147483648\n\n# assert/' BoardConfig.mk
 # Definition for rild patch
 sed -i "s/COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING/COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING -DRIL_PRE_M_BLOBS/" BoardConfig.mk
-sed -i "s/i9300/$C1MODEL/g" lineage.mk
-sed -i "s/GT-I9300/SHV-E210$C1VAR/g" lineage.mk
-sed -i "s/I9300/E210$C1VAR/g" lineage.mk
-sed -i "s/i9300/$C1MODEL/g" cm.mk
-sed -i "s/GT-I9300/SHV-E210$C1VAR/g" cm.mk
-sed -i "s/I9300/E210$C1VAR/g" cm.mk
-if [ "$C1MODEL" = "c1lgt" ]; then
-sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210LXXUGMJ9:user\/release-keys/samsung\/c1lgt\/c1lgt:4.4.4\/KTU84P\/E210LKLUKPJ2:user\/release-keys/' lineage.mk
-sed -i 's/m0xx-user 4\.3 JSS15J E210LXXUGMJ9 release-keys/c1lgt-user 4.4.4 KTU84P E210LKLUKPJ2 release-keys/' lineage.mk
-sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210LXXUGMJ9:user\/release-keys/samsung\/c1lgt\/c1lgt:4.4.4\/KTU84P\/E210LKLUKPJ2:user\/release-keys/' cm.mk
-sed -i 's/m0xx-user 4\.3 JSS15J E210LXXUGMJ9 release-keys/c1lgt-user 4.4.4 KTU84P E210LKLUKPJ2 release-keys/' cm.mk
-elif [ "$C1MODEL" = "c1skt" ]; then
-sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210SXXUGMJ9:user\/release-keys/samsung\/c1skt\/c1skt:4.4.4\/KTU84P\/E210SKSUKPJ2:user\/release-keys/' lineage.mk
-sed -i 's/m0xx-user 4\.3 JSS15J E210SXXUGMJ9 release-keys/c1skt-user 4.4.4 KTU84P E210SKSUKPJ2 release-keys/' lineage.mk
-sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210SXXUGMJ9:user\/release-keys/samsung\/c1skt\/c1skt:4.4.4\/KTU84P\/E210SKSUKPJ2:user\/release-keys/' cm.mk
-sed -i 's/m0xx-user 4\.3 JSS15J E210SXXUGMJ9 release-keys/c1skt-user 4.4.4 KTU84P E210SKSUKPJ2 release-keys/' cm.mk
-elif [ "$C1MODEL" = "c1ktt" ]; then
-sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210KXXUGMJ9:user\/release-keys/samsung\/c1ktt\/c1ktt:4.4.4\/KTU84P\/E210KKTUKPJ2:user\/release-keys/' lineage.mk
-sed -i 's/m0xx-user 4\.3 JSS15J E210KXXUGMJ9 release-keys/c1ktt-user 4.4.4 KTU84P E210KKTUKPJ2 release-keys/' lineage.mk
-sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210KXXUGMJ9:user\/release-keys/samsung\/c1ktt\/c1ktt:4.4.4\/KTU84P\/E210KKTUKPJ2:user\/release-keys/' cm.mk
-sed -i 's/m0xx-user 4\.3 JSS15J E210KXXUGMJ9 release-keys/c1ktt-user 4.4.4 KTU84P E210KKTUKPJ2 release-keys/' cm.mk
+if [ -f cm.mk ]; then
+BNAME=cm
+KCFG=cyanogenmod_${C1MODEL}_defconfig
+else
+BNAME=lineage
+KCFG=lineageos_${C1MODEL}_defconfig
 fi
-sed -i "s/m0xx/$C1MODEL/" lineage.mk
-sed -i "s/m0/$C1MODEL/" lineage.mk
-sed -i "s/m0xx/$C1MODEL/" cm.mk
-sed -i "s/m0/$C1MODEL/" cm.mk
+sed -i "s/i9300/$C1MODEL/g" $BNAME.mk
+sed -i "s/GT-I9300/SHV-E210$C1VAR/g" $BNAME.mk
+sed -i "s/I9300/E210$C1VAR/g" $BNAME.mk
+if [ "$C1MODEL" = "c1lgt" ]; then
+sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210LXXUGMJ9:user\/release-keys/samsung\/c1lgt\/c1lgt:4.4.4\/KTU84P\/E210LKLUKPJ2:user\/release-keys/' $BNAME.mk
+sed -i 's/m0xx-user 4\.3 JSS15J E210LXXUGMJ9 release-keys/c1lgt-user 4.4.4 KTU84P E210LKLUKPJ2 release-keys/' $BNAME.mk
+elif [ "$C1MODEL" = "c1skt" ]; then
+sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210SXXUGMJ9:user\/release-keys/samsung\/c1skt\/c1skt:4.4.4\/KTU84P\/E210SKSUKPJ2:user\/release-keys/' $BNAME.mk
+sed -i 's/m0xx-user 4\.3 JSS15J E210SXXUGMJ9 release-keys/c1skt-user 4.4.4 KTU84P E210SKSUKPJ2 release-keys/' $BNAME.mk
+elif [ "$C1MODEL" = "c1ktt" ]; then
+sed -i 's/samsung\/m0xx\/m0:4\.3\/JSS15J\/E210KXXUGMJ9:user\/release-keys/samsung\/c1ktt\/c1ktt:4.4.4\/KTU84P\/E210KKTUKPJ2:user\/release-keys/' $BNAME.mk
+sed -i 's/m0xx-user 4\.3 JSS15J E210KXXUGMJ9 release-keys/c1ktt-user 4.4.4 KTU84P E210KKTUKPJ2 release-keys/' $BNAME.mk
+fi
+sed -i "s/m0xx/$C1MODEL/" $BNAME.mk
+sed -i "s/m0/$C1MODEL/" $BNAME.mk
 # Add settings to build.prop
+echo ro.tvout.enable=true>>system.prop
 echo persist.radio.add_power_save=1>>system.prop
 echo persist.radio.snapshot_enabled=1>>system.prop
 echo persist.radio.snapshot_timer=22>>system.prop
@@ -115,7 +112,6 @@ sed -i "s/I9300/E210$C1VAR/g" full_$C1MODEL.mk
 mv i9300.mk $C1MODEL.mk
 sed -i "s/i9300/$C1MODEL/g" $C1MODEL.mk
 sed -i "s/m0/$C1MODEL/g" $C1MODEL.mk
-sed -i "s@$(call inherit-product, device/samsung/smdk4412-common/common.mk)@$(call inherit-product, device/samsung/smdk4412-common/common.mk)\n\n$(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)@" $C1MODEL.mk
 # Patch keylayout, thanks to FullGreen
 sed -i 's@# Product specific Packages@# Keylayout\nPRODUCT_COPY_FILES += \\\n    $(LOCAL_PATH)/keylayout/sec_touchkey.kl:system/usr/keylayout/sec_touchkey.kl\n\n# Product specific Packages@' $C1MODEL.mk
 mkdir -p keylayout
@@ -125,12 +121,11 @@ sed -i 's@<integer name="config_deviceHardwareKeys">71</integer>@<integer name="
 # Patch RILJ
 patch --no-backup-if-mismatch -t -r - ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java < $SDIR/c1ril-cm.diff
 # Add more proprietary files
-echo system/lib/libomission_avoidance.so>>proprietary-files.txt
+#echo system/lib/libomission_avoidance.so>>proprietary-files.txt # Only for old libsec-ril
 echo system/lib/libril.so>>proprietary-files.txt
-echo system/lib/libfactoryutil.so>>proprietary-files.txt
+#echo system/lib/libfactoryutil.so>>proprietary-files.txt  # Only for old libsec-ril
 echo system/lib/hw/sensors.smdk4x12.so>>proprietary-files.txt
-#echo system/lib/libsecril-client.so>>proprietary-files.txt # Not needed in current build
-#echo system/bin/rild>>proprietary-files.txt # Not needed in current build
+echo system/lib/libsecril-client.so>>proprietary-files.txt #  # Only for new libsec-ril
 # Patches config files to support LTE
 sed -i "s/i9300/$C1MODEL/g" system.prop
 sed -i 's/>GPRS|EDGE|WCDMA</>GSM|WCDMA|LTE</' overlay/frameworks/base/core/res/res/values/config.xml
@@ -139,12 +134,12 @@ echo \<?xml version=\"1.0\" encoding=\"utf-8\"?\>>overlay/packages/services/Tele
 echo \<resources\>>>overlay/packages/services/Telephony/res/values/config.xml
 echo \<bool name=\"config_enabled_lte\" translatable=\"false\"\>true\</bool\>>>overlay/packages/services/Telephony/res/values/config.xml
 echo \</resources\>>>overlay/packages/services/Telephony/res/values/config.xml
-## Only if we use the new libsec-ril, make SamsungServiceMode work with it
-#mkdir -p overlay/packages/apps/SamsungServiceMode/res/values/
-#echo \<?xml version=\"1.0\" encoding=\"utf-8\"?\>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
-#echo \<resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
-#echo \<integer name=\"config_api_version\"\>2\</integer\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
-#echo \</resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
+# For new libsec-ril, make SamsungServiceMode work with it
+mkdir -p overlay/packages/apps/SamsungServiceMode/res/values/
+echo \<?xml version=\"1.0\" encoding=\"utf-8\"?\>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
+echo \<resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
+echo \<integer name=\"config_api_version\"\>2\</integer\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
+echo \</resources\>>>overlay/packages/apps/SamsungServiceMode/res/values/config.xml
 # Patch smdk4412 common files, all patches here shouldn't interfere with builds for other smdk4412 devices
 cd ../smdk4412-common
 git checkout -f
@@ -152,6 +147,8 @@ git checkout -f
 sed -i '/adb root/d' extract-files.sh
 sed -i '/adb wait-for-device/d' extract-files.sh
 sed -i "s@adb pull /$FILE@cp ${SDIR}/blobs/$FILE@" extract-files.sh
+sed -i 's@$(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)@ifneq ($(filter c1lgt c1skt c1ktt, $(PRODUCT_RELEASE_NAME)),)\n$(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)\nM-O-R-E@' common.mk
+sed -i 's@M-O-R-E@else\n$(call inherit-product, frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk)\nendif@' common.mk
 sed -i "s/i9300 i9305/i9300 c1lgt c1skt c1ktt i9305/g" Android.mk
 sed -i "s/i9300 i9305/i9300 c1lgt c1skt c1ktt i9305/g" extract-files.sh
 sed -i "s/i9300 i9305/i9300 c1lgt c1skt c1ktt i9305/g" camera/Android.mk
@@ -164,7 +161,7 @@ cd ../$C1MODEL
 # Now we can copy proprietary files to vendor directory
 . ./extract-files.sh
 croot
-# Configure samsung libril to be built like for i9300. It is needed for dependencies but won't be used anyway.
+# Configure samsung libril to build like for i9300. It is needed for dependencies but won't be used anyway.
 cd hardware/samsung
 git checkout -f
 sed -i "s/xmm6262 xmm6360/xmm6262 cmc221 xmm6360/g" ril/Android.mk
@@ -211,76 +208,81 @@ cp $SDIR/camera/midas-camera.c arch/arm/mach-exynos/
 # sed -i 's@clk_set_rate(sclk, 100 \* 1000 \* 1000); /\*50MHz\*/@clk_set_rate(sclk, 50 * 1000 * 1000); /*25MHz*/@' arch/arm/mach-exynos/mach-midas.c
 cd arch/arm/configs
 # Kernel config for all c1 models
-cp lineageos_i9300_defconfig lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_TARGET_LOCALE_EUR=y//' lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_TARGET_LOCALE_KOR is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_TARGET_LOCALE_KOR=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_MACH_M0=y//' lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_MACH_C1 is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_MACH_C1=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_WLAN_REGION_CODE=100//' lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_SEC_MODEM_M0=y//' lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_LTE_MODEM_CMC221 is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_LTE_MODEM_CMC221=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_LINK_DEVICE_DPRAM is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_LINK_DEVICE_DPRAM=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_LINK_DEVICE_USB is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_LINK_DEVICE_USB=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_USBHUB_USB3503 is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_USBHUB_USB3503=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_UMTS_MODEM_XMM6262=y//' lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_LINK_DEVICE_HSIC=y//' lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_SIPC_VER_5 is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_SIPC_VER_5=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_SND_DEBUG=y//' lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_FM_RADIO=y//' lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_FM_SI4705=y//' lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_TDMB is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_TDMB=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_TDMB_VENDOR_RAONTECH=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_TDMB_MTV318=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_TDMB_SPI=y>>lineageos_${C1MODEL}_defconfig
+if [ "$BNAME" = "cm" ]; then
+cp cyanogenmod_i9300_defconfig $KCFG
+else
+cp lineageos_i9300_defconfig $KCFG
+fi
+sed -i 's/CONFIG_TARGET_LOCALE_EUR=y//' $KCFG
+sed -i 's/# CONFIG_TARGET_LOCALE_KOR is not set//' $KCFG
+echo CONFIG_TARGET_LOCALE_KOR=y>>$KCFG
+sed -i 's/CONFIG_MACH_M0=y//' $KCFG
+sed -i 's/# CONFIG_MACH_C1 is not set//' $KCFG
+echo CONFIG_MACH_C1=y>>$KCFG
+sed -i 's/CONFIG_WLAN_REGION_CODE=100//' $KCFG
+sed -i 's/CONFIG_SEC_MODEM_M0=y//' $KCFG
+sed -i 's/# CONFIG_LTE_MODEM_CMC221 is not set//' $KCFG
+echo CONFIG_LTE_MODEM_CMC221=y>>$KCFG
+sed -i 's/# CONFIG_LINK_DEVICE_DPRAM is not set//' $KCFG
+echo CONFIG_LINK_DEVICE_DPRAM=y>>$KCFG
+sed -i 's/# CONFIG_LINK_DEVICE_USB is not set//' $KCFG
+echo CONFIG_LINK_DEVICE_USB=y>>$KCFG
+sed -i 's/# CONFIG_USBHUB_USB3503 is not set//' $KCFG
+echo CONFIG_USBHUB_USB3503=y>>$KCFG
+sed -i 's/CONFIG_UMTS_MODEM_XMM6262=y//' $KCFG
+sed -i 's/CONFIG_LINK_DEVICE_HSIC=y//' $KCFG
+sed -i 's/# CONFIG_SIPC_VER_5 is not set//' $KCFG
+echo CONFIG_SIPC_VER_5=y>>$KCFG
+sed -i 's/CONFIG_SND_DEBUG=y//' $KCFG
+sed -i 's/CONFIG_FM_RADIO=y//' $KCFG
+sed -i 's/CONFIG_FM_SI4705=y//' $KCFG
+sed -i 's/# CONFIG_TDMB is not set//' $KCFG
+echo CONFIG_TDMB=y>>$KCFG
+echo CONFIG_TDMB_VENDOR_RAONTECH=y>>$KCFG
+echo CONFIG_TDMB_MTV318=y>>$KCFG
+echo CONFIG_TDMB_SPI=y>>$KCFG
 # We need this one only if we want to reuse the kernel in TWRP
-sed -i 's/# CONFIG_RD_LZMA is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_RD_LZMA=y>>lineageos_${C1MODEL}_defconfig
+sed -i 's/# CONFIG_RD_LZMA is not set//' $KCFG
+echo CONFIG_RD_LZMA=y>>$KCFG
 # Fix video playback error, thanks to FullGreen
-sed -i 's/CONFIG_DMA_CMA=y//' lineageos_${C1MODEL}_defconfig
-sed -i '/CONFIG_CMA_SIZE_MBYTES/d' lineageos_${C1MODEL}_defconfig
-sed -i '/CONFIG_CMA_SIZE_SEL_MBYTES/d' lineageos_${C1MODEL}_defconfig
-sed -i '/CONFIG_CMA_ALIGNMENT/d' lineageos_${C1MODEL}_defconfig
-sed -i '/CONFIG_CMA_AREAS/d' lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_USE_FIMC_CMA=y//' lineageos_${C1MODEL}_defconfig
-sed -i 's/CONFIG_USE_MFC_CMA=y//' lineageos_${C1MODEL}_defconfig
+sed -i 's/CONFIG_DMA_CMA=y//' $KCFG
+sed -i '/CONFIG_CMA_SIZE_MBYTES/d' $KCFG
+sed -i '/CONFIG_CMA_SIZE_SEL_MBYTES/d' $KCFG
+sed -i '/CONFIG_CMA_ALIGNMENT/d' $KCFG
+sed -i '/CONFIG_CMA_AREAS/d' $KCFG
+sed -i 's/CONFIG_USE_FIMC_CMA=y//' $KCFG
+sed -i 's/CONFIG_USE_MFC_CMA=y//' $KCFG
 # Model-specific kernel config
 if [ "$C1MODEL" = "c1lgt" ]; then
-echo CONFIG_MACH_C1_KOR_LGT=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_C1_LGT_EXPERIMENTAL=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_FM34_WE395 is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_FM34_WE395=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_WLAN_REGION_CODE=203>>lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_SEC_MODEM_C1_LGT is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_SEC_MODEM_C1_LGT=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_CDMA_MODEM_CBP72 is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_CDMA_MODEM_CBP72=y>>lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_LTE_VIA_SWITCH is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_LTE_VIA_SWITCH=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_CMC_MODEM_HSIC_SYSREV=11>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_MACH_C1_KOR_LGT=y>>$KCFG
+echo CONFIG_C1_LGT_EXPERIMENTAL=y>>$KCFG
+sed -i 's/# CONFIG_FM34_WE395 is not set//' $KCFG
+echo CONFIG_FM34_WE395=y>>$KCFG
+echo CONFIG_WLAN_REGION_CODE=203>>$KCFG
+sed -i 's/# CONFIG_SEC_MODEM_C1_LGT is not set//' $KCFG
+echo CONFIG_SEC_MODEM_C1_LGT=y>>$KCFG
+sed -i 's/# CONFIG_CDMA_MODEM_CBP72 is not set//' $KCFG
+echo CONFIG_CDMA_MODEM_CBP72=y>>$KCFG
+sed -i 's/# CONFIG_LTE_VIA_SWITCH is not set//' $KCFG
+echo CONFIG_LTE_VIA_SWITCH=y>>$KCFG
+echo CONFIG_CMC_MODEM_HSIC_SYSREV=11>>$KCFG
 elif [ "$C1MODEL" = "c1skt" ]; then
-echo CONFIG_MACH_C1_KOR_SKT=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_WLAN_REGION_CODE=201>>lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_SEC_MODEM_C1 is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_SEC_MODEM_C1=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_MACH_C1_KOR_SKT=y>>$KCFG
+echo CONFIG_WLAN_REGION_CODE=201>>$KCFG
+sed -i 's/# CONFIG_SEC_MODEM_C1 is not set//' $KCFG
+echo CONFIG_SEC_MODEM_C1=y>>$KCFG
+echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>$KCFG
 elif [ "$C1MODEL" = "c1ktt" ]; then
-echo CONFIG_MACH_C1_KOR_SKT=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_WLAN_REGION_CODE=202>>lineageos_${C1MODEL}_defconfig
-sed -i 's/# CONFIG_SEC_MODEM_C1 is not set//' lineageos_${C1MODEL}_defconfig
-echo CONFIG_SEC_MODEM_C1=y>>lineageos_${C1MODEL}_defconfig
-echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>lineageos_${C1MODEL}_defconfig
+echo CONFIG_MACH_C1_KOR_SKT=y>>$KCFG
+echo CONFIG_WLAN_REGION_CODE=202>>$KCFG
+sed -i 's/# CONFIG_SEC_MODEM_C1 is not set//' $KCFG
+echo CONFIG_SEC_MODEM_C1=y>>$KCFG
+echo CONFIG_CMC_MODEM_HSIC_SYSREV=9>>$KCFG
 fi
 # Now that everything is configured correctly we can run breakfast again and it should complete without errors
 croot
-# Use LineageOS prebuilt Gello instead of defunct CM Maven artifact, needed only if compiling from obsolete sources that still referring to defunct Cyanogen servers, but should cause no harm on newer sources
+# Use LineageOS prebuilt Gello instead of defunct CM Maven artifact, needed only if compiling from obsolete sources that still referring to defunct Cyanogen servers.
+if [ "$BNAME" = "cm" ]; then
 cd vendor/cm
 git checkout -f
 cd gello
@@ -291,5 +293,6 @@ sed -i 's/LOCAL_MAVEN_ARTIFACT := gello/LOCAL_HTTP_FILENAME := gello.apk/' Andro
 sed -i 's/LOCAL_MAVEN_PACKAGING := apk/LOCAL_HTTP_MD5SUM := $(LOCAL_HTTP_FILENAME).md5sum/' Android.mk
 sed -i 's/include $(BUILD_MAVEN_PREBUILT)/include $(BUILD_HTTP_PREBUILT)/' Android.mk
 croot
+fi
 export WITH_SU=true
 breakfast $C1MODEL

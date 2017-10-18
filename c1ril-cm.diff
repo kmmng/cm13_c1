@@ -1,16 +1,16 @@
---- SamsungExynos4RIL.bak	2017-10-16 23:56:39.280758900 +0300
-+++ SamsungExynos4RIL.java	2017-10-17 00:04:25.855549500 +0300
+--- SamsungExynos4RIL.bak	2017-10-18 19:57:58.277084100 +0300
++++ SamsungExynos4RIL.java	2017-10-18 20:14:06.896183100 +0300
 @@ -15,11 +15,21 @@
   * limitations under the License.
   */
  
 +/*
-+Custom RIL for Samsung Galaxy S3 Korean C1 models.
-+Based on multiple RILs :
++Custom RIL for Samsung Galaxy S3 Korean C1 models by KMMNG
++Based on multiple RILs
 +https://github.com/CyanogenMod/android_device_samsung_i9300/blob/stable/cm-13.0-ZNH5Y/ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java
 +https://github.com/FullGreen/android_device_samsung_c1skt/blob/cm-13.0/ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java
 +https://github.com/CyanogenMod/android_device_samsung_i9500/blob/cm-13.0/ril/telephony/java/com/android/internal/telephony/ExynosXMM6360RIL.java
-+And more, and on original research
++and more RILs, and on original research
 +*/
 +
  package com.android.internal.telephony;
@@ -58,7 +58,7 @@
      }
  
      static String
-@@ -139,6 +160,170 @@
+@@ -139,6 +160,144 @@
          }
      }
  
@@ -82,17 +82,17 @@
 +        for (int i = 0 ; i < num ; i++) {
 +            dc = new DriverCall();
 +            dc.state = DriverCall.stateFromCLCC(p.readInt());
-+            dc.index = p.readInt() & 0xff; //& 0xff only for new libsec-ril
++            dc.index = p.readInt(); //& 0xff only for libsec-ril from 4.4.4
 +            dc.TOA = p.readInt();
 +            dc.isMpty = p.readInt() != 0;
 +            dc.isMT = p.readInt() != 0;
 +            dc.als = p.readInt();
 +            dc.isVoice = p.readInt() != 0;
 +            p.readInt(); // ignore isVideo
-+            // Only for new libsec-ril
++            /* Only for libsec-ril from 4.4.4
 +            p.readInt(); // ignore type
 +            p.readInt(); // ignore domain
-+            p.readString(); // ignore extras - up to here
++            p.readString(); // ignore extras - up to here */
 +            dc.isVoicePrivacy = (0 != p.readInt());
 +            dc.number = p.readString();
 +            int np = p.readInt();
@@ -200,36 +200,10 @@
 +        response.aid = "";
 +        return response;
 +    }
-+
-+    @Override
-+    protected Object
-+    responseOperatorInfos(Parcel p) {
-+        String strings[] = (String [])responseStrings(p);
-+        ArrayList<OperatorInfo> ret;
-+
-+        if (strings.length % 6 != 0) {
-+            throw new RuntimeException(
-+                "RIL_REQUEST_QUERY_AVAILABLE_NETWORKS: invalid response. Got "
-+                + strings.length + " strings, expected multiple of 6");
-+        }
-+
-+        ret = new ArrayList<OperatorInfo>(strings.length / 6);
-+
-+        for (int i = 0 ; i < strings.length ; i += 6) {
-+            ret.add (
-+                new OperatorInfo(
-+                    strings[i+0],
-+                    strings[i+1],
-+                    strings[i+2],
-+                    strings[i+3]));
-+        }
-+
-+        return ret;
-+    }
  
      @Override
      protected RILRequest processSolicited (Parcel p) {
-@@ -415,7 +600,10 @@
+@@ -415,7 +574,10 @@
          RILRequest rr = RILRequest.obtain(RIL_REQUEST_DIAL, result);
          rr.mParcel.writeString(address);
          rr.mParcel.writeInt(clirMode);
@@ -241,9 +215,12 @@
          if (uusInfo == null) {
              rr.mParcel.writeInt(0); // UUS information is absent
          } else {
-@@ -437,6 +625,10 @@
+@@ -435,8 +597,12 @@
+         Rlog.v(RILJ_LOG_TAG, "Emergency dial: " + address);
+ 
          RILRequest rr = RILRequest.obtain(RIL_REQUEST_DIAL_EMERGENCY, result);
-         rr.mParcel.writeString(address + "/");
+-        rr.mParcel.writeString(address + "/");
++        rr.mParcel.writeString(address);
          rr.mParcel.writeInt(clirMode);
 +        // Only for new libsec-ril
 +        rr.mParcel.writeInt(0);
@@ -252,7 +229,7 @@
          rr.mParcel.writeInt(0);  // UUS information is absent
  
          if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
-@@ -454,6 +646,25 @@
+@@ -454,6 +620,25 @@
          try{switch(response) {
              case RIL_UNSOL_STK_PROACTIVE_COMMAND: ret = responseString(p); break;
              case RIL_UNSOL_STK_SEND_SMS_RESULT: ret = responseInts(p); break; // Samsung STK
@@ -278,7 +255,7 @@
              default:
                  // Rewind the Parcel
                  p.setDataPosition(dataPosition);
-@@ -489,10 +700,50 @@
+@@ -489,10 +674,50 @@
                              new AsyncResult (null, ret, null));
                  }
              break;
@@ -329,7 +306,7 @@
      @Override
      public void setOnCatProactiveCmd(Handler h, int what, Object obj) {
          mCatProCmdRegistrant = new Registrant (h, what, obj);
-@@ -505,9 +756,12 @@
+@@ -505,9 +730,12 @@
  
      private void
      constructGsmSendSmsRilRequest (RILRequest rr, String smscPDU, String pdu) {
@@ -343,7 +320,7 @@
      }
  
      /**
-@@ -527,4 +781,86 @@
+@@ -527,4 +755,86 @@
          send(rr);
      }
  

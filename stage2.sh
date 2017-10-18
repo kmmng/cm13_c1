@@ -98,7 +98,7 @@ echo ro.tvout.enable=true>>system.prop
 echo persist.radio.add_power_save=1>>system.prop
 echo persist.radio.snapshot_enabled=1>>system.prop
 echo persist.radio.snapshot_timer=22>>system.prop
-#echo ro.ril.telephony.mqanelements=6>>system.prop
+echo ro.ril.telephony.mqanelements=6>>system.prop
 #echo telephony.lteOnGsmDevice=1>>system.prop
 #echo telephony.lteOnCdmaDevice=0>>system.prop
 #echo persist.radio.use_se_table_only=1>>system.prop
@@ -121,11 +121,11 @@ sed -i 's@<integer name="config_deviceHardwareKeys">71</integer>@<integer name="
 # Patch RILJ
 patch --no-backup-if-mismatch -t -r - ril/telephony/java/com/android/internal/telephony/SamsungExynos4RIL.java < $SDIR/c1ril-cm.diff
 # Add more proprietary files
-#echo system/lib/libomission_avoidance.so>>proprietary-files.txt # Only for old libsec-ril
+echo system/lib/libomission_avoidance.so>>proprietary-files.txt
 echo system/lib/libril.so>>proprietary-files.txt
-#echo system/lib/libfactoryutil.so>>proprietary-files.txt  # Only for old libsec-ril
+echo system/lib/libfactoryutil.so>>proprietary-files.txt
 echo system/lib/hw/sensors.smdk4x12.so>>proprietary-files.txt
-echo system/lib/libsecril-client.so>>proprietary-files.txt #  # Only for new libsec-ril
+echo system/lib/libsecril-client.so>>proprietary-files.txt # Only for new libsec-ril
 # Patches config files to support LTE
 sed -i "s/i9300/$C1MODEL/g" system.prop
 sed -i 's/>GPRS|EDGE|WCDMA</>GSM|WCDMA|LTE</' overlay/frameworks/base/core/res/res/values/config.xml

@@ -125,7 +125,7 @@ echo system/lib/libomission_avoidance.so>>proprietary-files.txt
 echo system/lib/libril.so>>proprietary-files.txt
 echo system/lib/libfactoryutil.so>>proprietary-files.txt
 echo system/lib/hw/sensors.smdk4x12.so>>proprietary-files.txt
-echo system/lib/libsecril-client.so>>proprietary-files.txt # Only for new libsec-ril
+#echo system/lib/libsecril-client.so>>proprietary-files.txt # Only for libsec-ril from 4.4.4
 # Patches config files to support LTE
 sed -i "s/i9300/$C1MODEL/g" system.prop
 sed -i 's/>GPRS|EDGE|WCDMA</>GSM|WCDMA|LTE</' overlay/frameworks/base/core/res/res/values/config.xml

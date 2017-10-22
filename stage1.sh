@@ -1,7 +1,7 @@
 #!/bin/bash
 echo Stage 1 - configure OS for build and download Android source
 # Install required packages including openjdk
-echo Configuring build environment, this may take a VERY long time...
+echo Configuring build environment, this may take a long time at first run
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 eval BDIR=`cat $SDIR/builddir`
 sudo add-apt-repository -y ppa:openjdk-r/ppa
@@ -14,7 +14,9 @@ mkdir -p $BDIR
 curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
 chmod a+x ~/bin/repo
 export PATH="$HOME/bin:$PATH"
-# Download Android source. This will take a VERY LONG time. If download fails, the script should be run again and the download will be resumed.
+echo Downloading Android sources, this will take a long time
 cd $BDIR
 repo init -u https://github.com/LineageOS/android.git -b "stable/cm-13.0-ZNH5Y" # cm-13.0 for latest cm13 build, stable/cm-13.0-ZNH5Y for stable build
 repo sync --force-sync
+echo If there are fetch errors, please run the script again and it will continue downloading.
+echo Sometimes multiple retries are needed, especially under WSL.

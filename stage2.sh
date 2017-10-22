@@ -180,13 +180,6 @@ sed -i "s/    group radio cache inet misc audio log qcom_diag/    group radio ca
 # Patch samsung kernel for c1
 cd kernel/samsung/smdk4412
 git checkout -f
-if grep -q Microsoft /proc/version; then
-# Workaround for WSL
-cd include
-rm asm
-ln -s asm-generic asm
-cd ..
-fi
 # Update modem drivers from Samsung sources
 rm -rf drivers/misc/modem_if_c1
 rm -rf include/linux/platform_data/modem_c1.h
@@ -205,7 +198,6 @@ cp $SDIR/camera/s5c73m3.h drivers/media/video/
 cp $SDIR/camera/s5c73m3_spi.c drivers/media/video/
 cp $SDIR/camera/s5c73m3_platform.h include/media/
 cp $SDIR/camera/midas-camera.c arch/arm/mach-exynos/
-# sed -i 's@clk_set_rate(sclk, 100 \* 1000 \* 1000); /\*50MHz\*/@clk_set_rate(sclk, 50 * 1000 * 1000); /*25MHz*/@' arch/arm/mach-exynos/mach-midas.c
 cd arch/arm/configs
 # Kernel config for all c1 models
 if [ "$BNAME" = "cm" ]; then

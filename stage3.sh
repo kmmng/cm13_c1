@@ -20,8 +20,8 @@ cd $BDIR
 if grep -q Microsoft /proc/version; then
 cd build
 git checkout -f
-# Workarounds for unsupported commands on WSL
-sed -i 's/mk_timer schedtool -B -n 1 -e ionice -n 1 //g' envsetup.sh
+# Workarounds for WSL
+#sed -i 's/mk_timer schedtool -B -n 1 -e ionice -n 1 //g' envsetup.sh
 cd ..
 cp /usr/bin/bison prebuilts/misc/linux-x86/bison/
 cp /usr/bin/python2.7 prebuilts/python/linux-x86/2.7.5/bin/

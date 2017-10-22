@@ -17,12 +17,12 @@ exit
 fi
 echo Building CM13 for SHV-E210$C1VAR, this may take a long time...
 cd $BDIR
-if grep -q Microsoft /proc/version; then
-cd build
-git checkout -f
 # Workarounds for WSL
+if grep -q Microsoft /proc/version; then
+#cd build
+#git checkout -f
 #sed -i 's/mk_timer schedtool -B -n 1 -e ionice -n 1 //g' envsetup.sh
-cd ..
+#cd ..
 cp /usr/bin/bison prebuilts/misc/linux-x86/bison/
 cp /usr/bin/python2.7 prebuilts/python/linux-x86/2.7.5/bin/
 #cd external/v8

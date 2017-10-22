@@ -25,11 +25,12 @@ git checkout -f
 cd ..
 cp /usr/bin/bison prebuilts/misc/linux-x86/bison/
 cp /usr/bin/python2.7 prebuilts/python/linux-x86/2.7.5/bin/
-cd external/v8
-git checkout -f
-sed -i 's/ENABLE_V8_SNAPSHOT = true/ENABLE_V8_SNAPSHOT = false/' Android.mk
-cd ../..
+#cd external/v8
+#git checkout -f
+#sed -i 's/ENABLE_V8_SNAPSHOT = true/ENABLE_V8_SNAPSHOT = false/' Android.mk
+#cd ../..
 else
+# We don't use ccache under WSL as it seems to cause problems
 export USE_CCACHE=1
 prebuilts/misc/linux-x86/ccache/ccache -M 50G
 fi
